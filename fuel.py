@@ -73,10 +73,17 @@ def get_closest_fuel_index(fuel: int) -> float:
 
 
 class TripInfo:
-    def __init__(self, takeoff_fuel, trip_fuel) -> None:
+    """
+    Fuel data container.
+    Contains takeoff, landing and trip fuel weights,
+    calculates and stores takeoff and landing
+    fuel index influence values.
+    """
+
+    def __init__(self, takeoff_fuel: int, trip_fuel: int) -> None:
         if takeoff_fuel < 0:
             raise ValueError(
-                f"Incorrect take off fuel value: {takeoff_fuel} (must not be negative)."
+                f"Incorrect takeoff fuel value: {takeoff_fuel} (must not be negative)."
             )
         if trip_fuel < 0:
             raise ValueError(
@@ -87,6 +94,7 @@ class TripInfo:
                 f"Trip fuel ({trip_fuel}) cannot exceed take off fuel ({takeoff_fuel})."
             )
         self.takeoff_fuel = takeoff_fuel
+        self.landing_fuel = takeoff_fuel - trip_fuel
         self.trip_fuel = trip_fuel
         self.takeoff_fuel_index = get_closest_fuel_index(takeoff_fuel)
-        self.landing_fuel_index = get_closest_fuel_index(takeoff_fuel - trip_fuel)
+        self.landing_fuel_index = get_closest_fuel_index(self.landing_fuel)
