@@ -44,20 +44,18 @@ def get_closest_fuel_index(fuel: int) -> float:
         fuel (int): fuel quantity
 
     Raises:
-        ValueError: if fuel quantity is negative
-        ValueError: if fuel quantity exceeds maximum
+        ValueError: if fuel value is negative
+        ValueError: if fuel value exceeds maximum
 
     Returns:
         float: index influence
     """
     if fuel < 0:
-        raise ValueError(f"Incorrect fuel quantity: {fuel} (must not be negative).")
+        raise ValueError(f"Incorrect fuel value: {fuel} (must not be negative).")
     if fuel in FUEL_INDEXES:
         return FUEL_INDEXES[fuel]
     if fuel > MAX_FUEL:
-        raise ValueError(
-            f"Incorrect fuel quantity: {fuel} (must not exceed {MAX_FUEL})."
-        )
+        raise ValueError(f"Incorrect fuel value: {fuel} (must not exceed {MAX_FUEL}).")
     closest_keys = {abs(fuel - x) for x in FUEL_INDEXES}
     min_diff = min(closest_keys)
     if fuel + min_diff in FUEL_INDEXES and fuel - min_diff in FUEL_INDEXES:
@@ -72,3 +70,23 @@ def get_closest_fuel_index(fuel: int) -> float:
         return FUEL_INDEXES[fuel + min_diff]
     else:
         return FUEL_INDEXES[fuel - min_diff]
+
+
+class TripInfo:
+    def __init__(self, takeoff_fuel, trip_fuel) -> None:
+        if takeoff_fuel < 0:
+            raise ValueError(
+                f"Incorrect take off fuel value: {takeoff_fuel} (must not be negative)."
+            )
+        if trip_fuel < 0:
+            raise ValueError(
+                f"Incorrect trip fuel value: {trip_fuel} (must not be negative)."
+            )
+        if trip_fuel > takeoff_fuel:
+            raise ValueError(
+                f"Trip fuel ({trip_fuel}) cannot exceed take off fuel ({takeoff_fuel})."
+            )
+        self.takeoff_fuel = takeoff_fuel
+        self.trip_fuel = trip_fuel
+        self.takeoff_fuel_index = get_closest_fuel_index(takeoff_fuel)
+        self.landing_fuel_index = get_closest_fuel_index(takeoff_fuel - trip_fuel)
