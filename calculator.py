@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from basic import calc_macrc
 from fuel import TripInfo
+from stab import calc_stab
 
 
 @dataclass
@@ -13,7 +14,7 @@ class Aircraft:
     doi: float
     mzfw: int
     mtow: int
-    mlw: int
+    mldw: int
     a_capacity: int
     b_capacity: int
     c_capacity: int
@@ -45,6 +46,28 @@ class StandardWeights:
     infant: int
 
 
+@dataclass
+class CalculationResult:
+    operating_weight: int
+    allowed_tow: int
+    allowed_traffic_load: int
+    total_traffic_load: int
+    underload_before_lmc: int
+    mzfw: int
+    mtow: int
+    mldw: int
+    zfw: int
+    tow: int
+    ldw: int
+    lizfw: float
+    litow: float
+    lilaw: float
+    maczfw: float
+    mactow: float
+    maclaw: float
+    stab_trim: float
+
+
 class WBCalculationError(Exception):
     pass
 
@@ -58,7 +81,7 @@ class WBCalculator:
         self,
         trip_info: TripInfo,
         payload: Payload,
-    ):
+    ) -> CalculationResult:
         if payload.pax_a > aircraft.a_capacity:
             raise WBCalculationError(
                 f"Number of PAX in area A ({payload.pax_a})"
@@ -83,7 +106,7 @@ class WBCalculator:
         allowed_tow = min(
             self.aircraft.mtow,
             self.aircraft.mzfw + trip_info.takeoff_fuel,
-            self.aircraft.mlw + trip_info.trip_fuel,
+            self.aircraft.mldw + trip_info.trip_fuel,
         )
         allowed_traffic_load = allowed_tow - operating_weight
         if allowed_traffic_load < 0:
@@ -96,8 +119,8 @@ class WBCalculator:
             + payload.cargo
         )
         # TODO: check for negative value
-        underload_lmc = allowed_traffic_load - total_traffic_load
-        if underload_lmc < 0:
+        underload_before_lmc = allowed_traffic_load - total_traffic_load
+        if underload_before_lmc < 0:
             raise WBCalculationError(
                 f"Total traffic load ({total_traffic_load}) exceeds "
                 f"allowed traffic load ({allowed_traffic_load})."
@@ -117,12 +140,27 @@ class WBCalculator:
         lilaw = lizfw + trip_info.landing_fuel_index
         maczfw = calc_macrc(lizfw, zfw)
         mactow = calc_macrc(litow, tow)
-        macldw = calc_macrc(lilaw, ldw)
-        print(
-            f"LIZFW {round(lizfw, 2)}\nLITOW {round(litow, 2)}\n"
-            f"LILAW {round(lilaw, 2)}\n"
-            f"MACZFW {round(maczfw, 2)}\nMACTOW {round(mactow, 2)}\n"
-            f"MACLDW {round(macldw, 2)}"
+        maclaw = calc_macrc(lilaw, ldw)
+        stab_trim = calc_stab(mactow, True)
+        return CalculationResult(
+            operating_weight,
+            allowed_tow,
+            allowed_traffic_load,
+            total_traffic_load,
+            underload_before_lmc,
+            aircraft.mzfw,
+            aircraft.mtow,
+            aircraft.mldw,
+            zfw,
+            tow,
+            ldw,
+            lizfw,
+            litow,
+            lilaw,
+            maczfw,
+            mactow,
+            maclaw,
+            stab_trim,
         )
 
 
@@ -133,7 +171,7 @@ if __name__ == "__main__":
         doi=49.81,
         mzfw=19958,
         mtow=24040,
-        mlw=21319,
+        mldw=21319,
         a_capacity=16,
         b_capacity=12,
         c_capacity=12,
@@ -145,7 +183,7 @@ if __name__ == "__main__":
         cargo_influence=0.01547,
     )
     weights = StandardWeights(adult=75, child=30, infant=15)
-    trip_info = TripInfo(3786, 1771)
+    trip_info = TripInfo(3786, 1273)
     payload_data = Payload(
         adults=41,
         children=2,
@@ -158,4 +196,5 @@ if __name__ == "__main__":
         pax_d=10,
     )
     calc = WBCalculator(aircraft, weights)
-    calc.calculate(trip_info, payload_data)
+    result = calc.calculate(trip_info, payload_data)
+    print(result)
