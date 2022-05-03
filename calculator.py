@@ -1,10 +1,7 @@
-"""
-Weight and balance calculation module.
-"""
 from dataclasses import dataclass
 
 from basic import calc_macrc
-from fuel import TripInfo
+from fuel import TripInfo, get_closest_fuel_index
 from stab import calc_stab
 
 
@@ -136,8 +133,8 @@ class WBCalculator:
             + payload.pax_c * self.weights.adult * self.aircraft.c_influence
             + payload.pax_d * self.weights.adult * self.aircraft.d_influence
         )
-        litow = lizfw + trip_info.takeoff_fuel_index
-        lilaw = lizfw + trip_info.landing_fuel_index
+        litow = lizfw + get_closest_fuel_index(trip_info.takeoff_fuel)
+        lilaw = lizfw + get_closest_fuel_index(trip_info.landing_fuel)
         maczfw = calc_macrc(lizfw, zfw)
         mactow = calc_macrc(litow, tow)
         maclaw = calc_macrc(lilaw, ldw)

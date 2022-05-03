@@ -1,4 +1,4 @@
-FUEL_INDEXES = {
+FUEL_INDEX_INFLUENCE = {
     200: -0.83,
     400: -1.56,
     600: -2.22,
@@ -34,7 +34,7 @@ FUEL_INDEXES = {
     6400: -17.28,
     6488: -17.91,
 }
-MAX_FUEL = max(FUEL_INDEXES)
+MAX_FUEL = max(FUEL_INDEX_INFLUENCE)
 
 
 def get_closest_fuel_index(fuel: int) -> float:
@@ -52,24 +52,27 @@ def get_closest_fuel_index(fuel: int) -> float:
     """
     if fuel < 0:
         raise ValueError(f"Incorrect fuel value: {fuel} (must not be negative).")
-    if fuel in FUEL_INDEXES:
-        return FUEL_INDEXES[fuel]
+    if fuel in FUEL_INDEX_INFLUENCE:
+        return FUEL_INDEX_INFLUENCE[fuel]
     if fuel > MAX_FUEL:
         raise ValueError(f"Incorrect fuel value: {fuel} (must not exceed {MAX_FUEL}).")
-    closest_keys = {abs(fuel - x) for x in FUEL_INDEXES}
+    closest_keys = {abs(fuel - x) for x in FUEL_INDEX_INFLUENCE}
     min_diff = min(closest_keys)
-    if fuel + min_diff in FUEL_INDEXES and fuel - min_diff in FUEL_INDEXES:
-        more_fuel_index = FUEL_INDEXES[fuel + min_diff]
-        less_fuel_index = FUEL_INDEXES[fuel - min_diff]
+    if (
+        fuel + min_diff in FUEL_INDEX_INFLUENCE
+        and fuel - min_diff in FUEL_INDEX_INFLUENCE
+    ):
+        more_fuel_index = FUEL_INDEX_INFLUENCE[fuel + min_diff]
+        less_fuel_index = FUEL_INDEX_INFLUENCE[fuel - min_diff]
         return (
             more_fuel_index
             if abs(more_fuel_index) >= abs(less_fuel_index)
             else less_fuel_index
         )
-    if fuel + min_diff in FUEL_INDEXES:
-        return FUEL_INDEXES[fuel + min_diff]
+    if fuel + min_diff in FUEL_INDEX_INFLUENCE:
+        return FUEL_INDEX_INFLUENCE[fuel + min_diff]
     else:
-        return FUEL_INDEXES[fuel - min_diff]
+        return FUEL_INDEX_INFLUENCE[fuel - min_diff]
 
 
 class TripInfo:
@@ -96,5 +99,3 @@ class TripInfo:
         self.takeoff_fuel = takeoff_fuel
         self.landing_fuel = takeoff_fuel - trip_fuel
         self.trip_fuel = trip_fuel
-        self.takeoff_fuel_index = get_closest_fuel_index(takeoff_fuel)
-        self.landing_fuel_index = get_closest_fuel_index(self.landing_fuel)
