@@ -1,4 +1,3 @@
-# Index formula constants.
 # Reference station/axis. Selected station around which all index values are calculated.
 REF_STATION = 13.2  # meters from zero
 # Constant used as a plus value to avoid negative index figures.
