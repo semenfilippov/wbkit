@@ -1,4 +1,4 @@
-def calc_stab(mac, eicas_formatted: bool = False) -> float:
+def calc_stab(mac: float, eicas_formatted: bool = False) -> float:
     """
     Get stab trim setting for given %MAC.\n
     The function is derived from the fact that:\n
@@ -7,7 +7,7 @@ def calc_stab(mac, eicas_formatted: bool = False) -> float:
     Therefore:\n
     f(x) = -0.158397x + 9.54389\n
     Args:
-        mac (_type_): %MAC
+        mac (float): %MAC
         eicas_formatted (bool, optional): Whether to round first decimal to even number.
         Defaults to False.
 
