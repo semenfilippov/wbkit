@@ -79,25 +79,25 @@ class WBCalculator:
         trip_info: TripInfo,
         payload: Payload,
     ) -> CalculationResult:
-        if payload.pax_a > aircraft.a_capacity:
+        if payload.pax_a > self.aircraft.a_capacity:
             raise WBCalculationError(
                 f"Number of PAX in area A ({payload.pax_a})"
-                f"exceeds limit ({aircraft.a_capacity})."
+                f"exceeds limit ({self.aircraft.a_capacity})."
             )
-        if payload.pax_b > aircraft.b_capacity:
+        if payload.pax_b > self.aircraft.b_capacity:
             raise WBCalculationError(
                 f"Number of PAX in area B ({payload.pax_b})"
-                f"exceeds limit ({aircraft.b_capacity})."
+                f"exceeds limit ({self.aircraft.b_capacity})."
             )
-        if payload.pax_c > aircraft.c_capacity:
+        if payload.pax_c > self.aircraft.c_capacity:
             raise WBCalculationError(
                 f"Number of PAX in area C ({payload.pax_c})"
-                f"exceeds limit ({aircraft.c_capacity})."
+                f"exceeds limit ({self.aircraft.c_capacity})."
             )
-        if payload.pax_d > aircraft.d_capacity:
+        if payload.pax_d > self.aircraft.d_capacity:
             raise WBCalculationError(
                 f"Number of PAX in area D ({payload.pax_a})"
-                f"exceeds limit ({aircraft.d_capacity})."
+                f"exceeds limit ({self.aircraft.d_capacity})."
             )
         operating_weight = self.aircraft.dow + trip_info.takeoff_fuel
         allowed_tow = min(
@@ -145,9 +145,9 @@ class WBCalculator:
             allowed_traffic_load,
             total_traffic_load,
             underload_before_lmc,
-            aircraft.mzfw,
-            aircraft.mtow,
-            aircraft.mldw,
+            self.aircraft.mzfw,
+            self.aircraft.mtow,
+            self.aircraft.mldw,
             zfw,
             tow,
             ldw,
@@ -159,39 +159,3 @@ class WBCalculator:
             maclaw,
             stab_trim,
         )
-
-
-if __name__ == "__main__":
-    # should be fetched from db
-    aircraft = Aircraft(
-        dow=14434,
-        doi=49.81,
-        mzfw=19958,
-        mtow=24040,
-        mldw=21319,
-        a_capacity=16,
-        b_capacity=12,
-        c_capacity=12,
-        d_capacity=10,
-        a_influence=-0.01997,
-        b_influence=-0.01013,
-        c_influence=-0.00161,
-        d_influence=0.00627,
-        cargo_influence=0.01547,
-    )
-    weights = StandardWeights(adult=75, child=30, infant=15)
-    trip_info = TripInfo(3786, 1273)
-    payload_data = Payload(
-        adults=41,
-        children=2,
-        infants=0,
-        cabin_baggage=91,
-        cargo=181,
-        pax_a=12,
-        pax_b=12,
-        pax_c=9,
-        pax_d=10,
-    )
-    calc = WBCalculator(aircraft, weights)
-    result = calc.calculate(trip_info, payload_data)
-    print(result)
