@@ -1,5 +1,5 @@
 import pytest
-from crjwb.stab import calc_stab
+from crjwb.stab import calc_stab, eicas_round
 
 
 def test_exceeds_fwd_limit():
@@ -18,3 +18,11 @@ def test_calc_stab_fwd_limit():
 
 def test_calc_stab_aft_limit():
     assert round(calc_stab(35), 2) == 4
+
+
+def test_eicas_round_up():
+    assert eicas_round(8.15) == 8.2
+
+
+def test_eicas_round_down():
+    assert eicas_round(8.09) == 8.0

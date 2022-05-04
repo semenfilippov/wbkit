@@ -26,3 +26,16 @@ def calc_stab(mactow: float) -> float:
             f"MAC {mactow} is out of range. Should be within 8.8-35.0 %MAC."
         )
     return mactow * -0.158397 + 9.54389
+
+
+def eicas_round(stab_trim_setting: float) -> float:
+    """
+    Rounds stab trim setting up to 0.2 (as displayed on EICAS).
+
+    Args:
+        ``stab_trim_setting`` (float): stab trim setting
+
+    Returns:
+        ``float``: rounded value
+    """
+    return round(stab_trim_setting / 2, 1) * 2
