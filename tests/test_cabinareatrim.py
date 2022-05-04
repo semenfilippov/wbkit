@@ -33,7 +33,7 @@ def test_calc_pax_weight():
 
 def test_calc_pax_influence():
     assert calc_pax_influence(
-        WEIGHTS.adult,
+        WEIGHTS,
         A_INFLUENCE,
         B_INFLUENCE,
         C_INFLUENCE,
@@ -49,7 +49,7 @@ def test_compare_to_real_calculation():
     assert (
         abs(
             calc_pax_influence(
-                WEIGHTS.adult,
+                WEIGHTS,
                 A_INFLUENCE,
                 B_INFLUENCE,
                 C_INFLUENCE,
