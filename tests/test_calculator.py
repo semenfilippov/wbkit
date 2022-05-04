@@ -1,6 +1,10 @@
+import dataclasses
+
 import pytest
 from crjwb.calculator import CalculationResult, calculate_wb
 from crjwb.exceptions import (
+    AftMACLimitsViolatedError,
+    ForwardMACLimitsViolatedError,
     IncorrectTripFuelError,
     NotEnoughSeatsOccupiedError,
     PayloadTooHeavyError,
@@ -60,6 +64,15 @@ EXPECTED_CALC_RESULT = CalculationResult(
     12.58,
     11.80,
     7.5,
+    0,
+)
+
+TASK_EXCEEDS_FWD_MAC = CalculationTask(5800, 2800, 16, 0, 0, 100, 16)
+
+TASK_EXCEEDS_AFT_MAC = CalculationTask(3000, 1000, 10, pax_d=10, cargo=1200)
+
+TASK_EXCEEDS_FWD_ALLOW_BALLAST = dataclasses.replace(
+    TASK_EXCEEDS_FWD_MAC, allow_ballast=True
 )
 
 
@@ -106,3 +119,18 @@ def test_calculation_result():
     assert abs(result.maclaw - EXPECTED_CALC_RESULT.maclaw) < 1
     assert abs(result.stab_trim - EXPECTED_CALC_RESULT.stab_trim) < 0.2
     assert eicas_round(result.stab_trim) == eicas_round(EXPECTED_CALC_RESULT.stab_trim)
+    assert result.required_ballast == EXPECTED_CALC_RESULT.required_ballast
+
+
+def test_raises_fwd_mac_limits():
+    with pytest.raises(ForwardMACLimitsViolatedError):
+        calculate_wb(AIRCRAFT_DATA, TASK_EXCEEDS_FWD_MAC, WEIGHTS)
+
+
+def test_raises_aft_mac_limits():
+    with pytest.raises(AftMACLimitsViolatedError):
+        calculate_wb(AIRCRAFT_DATA, TASK_EXCEEDS_AFT_MAC, WEIGHTS)
+
+
+def test_calc_allow_ballast():
+    calculate_wb(AIRCRAFT_DATA, TASK_EXCEEDS_FWD_ALLOW_BALLAST, WEIGHTS)
