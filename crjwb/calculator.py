@@ -104,7 +104,7 @@ def calculate_wb(
     if maczfw > 35 or mactow > 35 or maclaw > 35:
         raise AftMACLimitsViolatedError()
     stab_trim = calc_stab(mactow)
-    result = CalculationResult(
+    return CalculationResult(
         aircraft,
         task,
         weights,
@@ -124,4 +124,3 @@ def calculate_wb(
         stab_trim,
         required_ballast=task.required_ballast,
     )
-    return result
