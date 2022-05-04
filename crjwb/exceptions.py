@@ -1,8 +1,12 @@
 class CalculationError(Exception):
+    "Base class for all weight and balance calculation errors."
+
     pass
 
 
 class IncorrectTripFuelError(CalculationError):
+    "Raised when trip fuel exceeds takeoff fuel."
+
     def __init__(self, takeoff_fuel, trip_fuel) -> None:
         super().__init__(
             f"Trip fuel ({takeoff_fuel}) must not exceed "
@@ -38,3 +42,13 @@ class PayloadTooHeavyError(CalculationError):
             f"Total traffic load exceeds allowed "
             f"traffic load by {total_traffic_load - allowed_traffic_load} kg."
         )
+
+
+class ForwardMACLimitsViolatedError(CalculationError):
+    def __init__(self) -> None:
+        super().__init__("Forward MAC limits violated.")
+
+
+class AftMACLimitsViolatedError(CalculationError):
+    def __init__(self) -> None:
+        super().__init__("Aft MAC limits violated.")
