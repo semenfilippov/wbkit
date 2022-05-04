@@ -13,18 +13,18 @@ MACRC_LENGTH = 2.526  # meters
 LEMAC_AT = 12.542  # meters from zero
 
 
-def calc_index(weight: float, station: float) -> float:
-    """Calculate index.
-
-    Args:
-        weight (float): actual weight
-        station (float): horizontal distance in meters
-        from station zero to the location
-
-    Returns:
-        float: index
-    """
-    return float((weight * (station - REF_STATION)) / C_CONSTANT + K_CONSTANT)
+# def calc_index(weight: float, station: float) -> float:
+#    """Calculate index.
+#
+#    Args:
+#        weight (float): actual weight
+#        station (float): horizontal distance in meters
+#        from station zero to the location
+#
+#    Returns:
+#        float: index
+#    """
+#    return float((weight * (station - REF_STATION)) / C_CONSTANT + K_CONSTANT)
 
 
 def calc_macrc(idx: float, weight: float) -> float:
