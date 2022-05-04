@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace as replace_dataclass
+from typing import NamedTuple
 
 from crjwb.basic import calc_macrc
 from crjwb.cabinareatrim import calc_pax_influence, calc_pax_weight
@@ -17,8 +17,7 @@ from crjwb.stab import calc_stab
 BALLAST_STEP = 25
 
 
-@dataclass
-class CalculationResult:
+class CalculationResult(NamedTuple):
     aircraft: AircraftData
     task: CalculationTask
     weights: StandardWeights
@@ -97,9 +96,7 @@ def calculate_wb(
     if maczfw < 11 or mactow < 9 or maclaw < 9:
         if not task.allow_ballast or BALLAST_STEP > underload_lmc:
             raise ForwardMACLimitsViolatedError()
-        new_task = replace_dataclass(
-            task, required_ballast=task.required_ballast + BALLAST_STEP
-        )
+        new_task = task._replace(required_ballast=task.required_ballast + BALLAST_STEP)
         return calculate_wb(aircraft, new_task, weights)
     if maczfw > 35 or mactow > 35 or maclaw > 35:
         raise AftMACLimitsViolatedError()

@@ -1,5 +1,3 @@
-import dataclasses
-
 import pytest
 from crjwb.calculator import CalculationResult, calculate_wb
 from crjwb.exceptions import (
@@ -71,9 +69,7 @@ TASK_EXCEEDS_FWD_MAC = CalculationTask(5800, 2800, 16, 0, 0, 100, 16)
 
 TASK_EXCEEDS_AFT_MAC = CalculationTask(3000, 1000, 10, pax_d=10, cargo=1200)
 
-TASK_EXCEEDS_FWD_ALLOW_BALLAST = dataclasses.replace(
-    TASK_EXCEEDS_FWD_MAC, allow_ballast=True
-)
+TASK_EXCEEDS_FWD_ALLOW_BALLAST = TASK_EXCEEDS_FWD_MAC._replace(allow_ballast=True)
 
 
 def test_incorrect_fuel():

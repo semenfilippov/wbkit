@@ -1,8 +1,7 @@
-from dataclasses import dataclass
+from typing import NamedTuple
 
 
-@dataclass
-class AircraftData:
+class AircraftData(NamedTuple):
     dow: int
     doi: float
     mzfw: int
@@ -19,8 +18,7 @@ class AircraftData:
     cargo_influence: float
 
 
-@dataclass
-class CalculationTask:
+class CalculationTask(NamedTuple):
     takeoff_fuel: int = 0
     trip_fuel: int = 0
     num_adults: int = 0
@@ -36,8 +34,7 @@ class CalculationTask:
     allow_ballast: bool = False
 
 
-@dataclass
-class StandardWeights:
+class StandardWeights(NamedTuple):
     adult: int
     child: int
     infant: int
