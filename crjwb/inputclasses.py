@@ -32,6 +32,8 @@ class CalculationTask:
     pax_c: int = 0
     pax_d: int = 0
     cargo: int = 0
+    required_ballast: int = 0
+    allow_ballast: bool = False
 
 
 @dataclass
