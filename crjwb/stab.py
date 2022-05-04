@@ -1,4 +1,4 @@
-def calc_stab(mactow: float, eicas_formatted: bool = False) -> float:
+def calc_stab(mactow: float) -> float:
     """
     Get takeoff stab trim setting for given %MAC.
 
@@ -14,9 +14,6 @@ def calc_stab(mactow: float, eicas_formatted: bool = False) -> float:
 
     Args:
         ``mactow`` (float): %MAC for takeoff
-        ``eicas_formatted`` (bool, optional): Whether to round first decimal \
-        to even number.
-        Defaults to False.
 
     Raises:
         ``ValueError``: If provided ``mactow`` is out of range (8.8-35.0)
@@ -28,8 +25,4 @@ def calc_stab(mactow: float, eicas_formatted: bool = False) -> float:
         raise ValueError(
             f"MAC {mactow} is out of range. Should be within 8.8-35.0 %MAC."
         )
-    stab = mactow * -0.158397 + 9.54389
-    if eicas_formatted:
-        return round(stab / 2, 1) * 2
-    else:
-        return round(stab, 2)
+    return mactow * -0.158397 + 9.54389
