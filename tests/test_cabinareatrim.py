@@ -1,9 +1,8 @@
 import pytest
 from crjwb.cabinareatrim import calc_pax_influence, calc_pax_weight
+from crjwb.inputclasses import StandardWeights
 
-AVG_ADULT_WEIGHT = 75
-AVG_CHILD_WEIGHT = 30
-AVG_INFANT_WEIGHT = 15
+WEIGHTS = StandardWeights(75, 30, 15)
 NUM_ADULTS = 41
 NUM_CHILDREN = 2
 NUM_INFANTS = 0
@@ -22,9 +21,7 @@ REAL_PAX_INFLUENCE = -(49.81 + 181 * 0.01547 - 29.84)
 def test_calc_pax_weight():
     assert (
         calc_pax_weight(
-            AVG_ADULT_WEIGHT,
-            AVG_CHILD_WEIGHT,
-            AVG_INFANT_WEIGHT,
+            WEIGHTS,
             NUM_ADULTS,
             NUM_CHILDREN,
             NUM_INFANTS,
@@ -36,7 +33,7 @@ def test_calc_pax_weight():
 
 def test_calc_pax_influence():
     assert calc_pax_influence(
-        AVG_ADULT_WEIGHT,
+        WEIGHTS.adult,
         A_INFLUENCE,
         B_INFLUENCE,
         C_INFLUENCE,
@@ -52,7 +49,7 @@ def test_compare_to_real_calculation():
     assert (
         abs(
             calc_pax_influence(
-                AVG_ADULT_WEIGHT,
+                WEIGHTS.adult,
                 A_INFLUENCE,
                 B_INFLUENCE,
                 C_INFLUENCE,

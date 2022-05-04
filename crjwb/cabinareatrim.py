@@ -1,5 +1,8 @@
+from crjwb.inputclasses import StandardWeights
+
+
 def calc_pax_influence(
-    avg_adult_weight: int,
+    weights: StandardWeights,
     a_influence: float,
     b_influence: float,
     c_influence: float,
@@ -26,7 +29,7 @@ def calc_pax_influence(
     Returns:
         ``float``: PAX index influence
     """
-    return avg_adult_weight * (
+    return weights.adult * (
         a_pax * a_influence
         + b_pax * b_influence
         + c_pax * c_influence
@@ -35,9 +38,7 @@ def calc_pax_influence(
 
 
 def calc_pax_weight(
-    avg_adult_weight: int,
-    avg_child_weight: int,
-    avg_infant_weight: int,
+    weights: StandardWeights,
     num_adults: int,
     num_children: int,
     num_infants: int,
@@ -59,8 +60,8 @@ def calc_pax_weight(
         int: passenger + cabin baggage weight
     """
     return (
-        avg_adult_weight * num_adults
-        + avg_child_weight * num_children
-        + avg_infant_weight * num_infants
+        weights.adult * num_adults
+        + weights.child * num_children
+        + weights.infant * num_infants
         + cabin_baggage
     )
