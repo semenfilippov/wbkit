@@ -1,5 +1,5 @@
 """
-CRJ100/200 weight and balance calculation module.
+CRJ100/200 weight and balance calculation tool.
 """
 from crjwb.calculator import CalculationResult, calculate_wb
 from crjwb.exceptions import (
