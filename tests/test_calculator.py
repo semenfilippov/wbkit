@@ -51,6 +51,7 @@ EXPECTED_CALC_RESULT = CalculationResult(
     18220,
     22592,
     4372,
+    3407,
     965,
     17841,
     21627,
@@ -74,35 +75,33 @@ TASK_EXCEEDS_FWD_ALLOW_BALLAST = TASK_EXCEEDS_FWD_MAC._replace(allow_ballast=Tru
 
 def test_incorrect_fuel():
     with pytest.raises(IncorrectTripFuelError):
-        calculate_wb(AIRCRAFT_DATA, TASK_WRONG_FUEL, WEIGHTS)
+        calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_WRONG_FUEL)
 
 
 def test_not_enough_seats_occupied():
     with pytest.raises(NotEnoughSeatsOccupiedError):
-        calculate_wb(AIRCRAFT_DATA, TASK_NOT_ENOUGH_SEATS_OCCUPIED, WEIGHTS)
+        calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_NOT_ENOUGH_SEATS_OCCUPIED)
 
 
 def test_too_much_seats_occupied():
     with pytest.raises(TooManySeatsOccupiedError):
-        calculate_wb(AIRCRAFT_DATA, TASK_TOO_MUCH_SEATS_OCCUPIED, WEIGHTS)
+        calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_TOO_MUCH_SEATS_OCCUPIED)
 
 
 def test_payload_too_heavy():
     with pytest.raises(PayloadTooHeavyError):
-        calculate_wb(AIRCRAFT_DATA, TASK_PAYLOAD_TOO_HEAVY, WEIGHTS)
+        calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_PAYLOAD_TOO_HEAVY)
 
 
 def test_calculation_result():
-    result = calculate_wb(AIRCRAFT_DATA, TASK_REAL, WEIGHTS)
+    result = calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_REAL)
     assert result.aircraft == EXPECTED_CALC_RESULT.aircraft
     assert result.task == EXPECTED_CALC_RESULT.task
     assert result.weights == EXPECTED_CALC_RESULT.weights
     assert result.operating_weight == EXPECTED_CALC_RESULT.operating_weight
-    assert (
-        result.allowed_weight_for_takeoff
-        == EXPECTED_CALC_RESULT.allowed_weight_for_takeoff
-    )
-    assert result.allowed_traffic_load == EXPECTED_CALC_RESULT.allowed_traffic_load
+    assert result.allowed_tow == EXPECTED_CALC_RESULT.allowed_tow
+    assert result.allowed_payload == EXPECTED_CALC_RESULT.allowed_payload
+    assert result.payload == EXPECTED_CALC_RESULT.payload
     assert result.underload_lmc == EXPECTED_CALC_RESULT.underload_lmc
     assert result.zfw == EXPECTED_CALC_RESULT.zfw
     assert result.tow == EXPECTED_CALC_RESULT.tow
@@ -120,13 +119,13 @@ def test_calculation_result():
 
 def test_raises_fwd_mac_limits():
     with pytest.raises(ForwardMACLimitsViolatedError):
-        calculate_wb(AIRCRAFT_DATA, TASK_EXCEEDS_FWD_MAC, WEIGHTS)
+        calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_EXCEEDS_FWD_MAC)
 
 
 def test_raises_aft_mac_limits():
     with pytest.raises(AftMACLimitsViolatedError):
-        calculate_wb(AIRCRAFT_DATA, TASK_EXCEEDS_AFT_MAC, WEIGHTS)
+        calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_EXCEEDS_AFT_MAC)
 
 
 def test_calc_allow_ballast():
-    calculate_wb(AIRCRAFT_DATA, TASK_EXCEEDS_FWD_ALLOW_BALLAST, WEIGHTS)
+    calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_EXCEEDS_FWD_ALLOW_BALLAST)

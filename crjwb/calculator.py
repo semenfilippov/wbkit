@@ -22,8 +22,9 @@ class CalculationResult(NamedTuple):
     task: CalculationTask
     weights: StandardWeights
     operating_weight: int
-    allowed_weight_for_takeoff: int
-    allowed_traffic_load: int
+    allowed_tow: int
+    allowed_payload: int
+    payload: int
     underload_lmc: int
     zfw: int
     tow: int
@@ -40,8 +41,8 @@ class CalculationResult(NamedTuple):
 
 def calculate_wb(
     aircraft: AircraftData,
-    task: CalculationTask,
     weights: StandardWeights,
+    task: CalculationTask,
 ) -> CalculationResult:
     if task.takeoff_fuel < task.trip_fuel:
         raise IncorrectTripFuelError(task.takeoff_fuel, task.trip_fuel)
@@ -52,11 +53,11 @@ def calculate_wb(
     if ttl_pax > occupied_seats:
         raise NotEnoughSeatsOccupiedError(occupied_seats, ttl_pax)
     operating_weight = aircraft.dow + task.takeoff_fuel
-    allowed_weight_for_takeoff = min(
+    allowed_tow = min(
         aircraft.mtow, aircraft.mldw + task.trip_fuel, aircraft.mzfw + task.takeoff_fuel
     )
-    allowed_traffic_load = allowed_weight_for_takeoff - operating_weight
-    total_traffic_load = (
+    allowed_payload = allowed_tow - operating_weight
+    payload = (
         calc_pax_weight(
             weights,
             task.num_adults,
@@ -67,10 +68,10 @@ def calculate_wb(
         + task.cargo
         + task.required_ballast
     )
-    underload_lmc = allowed_traffic_load - total_traffic_load
+    underload_lmc = allowed_payload - payload
     if underload_lmc < 0:
-        raise PayloadTooHeavyError(total_traffic_load, allowed_traffic_load)
-    zfw = aircraft.dow + total_traffic_load
+        raise PayloadTooHeavyError(payload, allowed_payload)
+    zfw = aircraft.dow + payload
     tow = zfw + task.takeoff_fuel
     ldw = tow - task.trip_fuel
     pax_influence = calc_pax_influence(
@@ -97,7 +98,7 @@ def calculate_wb(
         if not task.allow_ballast or BALLAST_STEP > underload_lmc:
             raise ForwardMACLimitsViolatedError()
         new_task = task._replace(required_ballast=task.required_ballast + BALLAST_STEP)
-        return calculate_wb(aircraft, new_task, weights)
+        return calculate_wb(aircraft, weights, new_task)
     if maczfw > 35 or mactow > 35 or maclaw > 35:
         raise AftMACLimitsViolatedError()
     stab_trim = calc_stab(mactow)
@@ -106,8 +107,9 @@ def calculate_wb(
         task,
         weights,
         operating_weight,
-        allowed_weight_for_takeoff,
-        allowed_traffic_load,
+        allowed_tow,
+        allowed_payload,
+        payload,
         underload_lmc,
         zfw,
         tow,
