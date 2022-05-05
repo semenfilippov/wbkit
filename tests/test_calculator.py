@@ -128,4 +128,5 @@ def test_raises_aft_mac_limits():
 
 
 def test_calc_allow_ballast():
-    calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_EXCEEDS_FWD_ALLOW_BALLAST)
+    result = calculate_wb(AIRCRAFT_DATA, WEIGHTS, TASK_EXCEEDS_FWD_ALLOW_BALLAST)
+    assert result.required_ballast > 0
