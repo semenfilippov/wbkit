@@ -37,10 +37,10 @@ class NotEnoughSeatsOccupiedError(OccupiedSeatsMismatchError):
 
 
 class PayloadTooHeavyError(CalculationError):
-    def __init__(self, total_traffic_load, allowed_traffic_load) -> None:
+    def __init__(self, payload, allowed_payload) -> None:
         super().__init__(
             f"Total traffic load exceeds allowed "
-            f"traffic load by {total_traffic_load - allowed_traffic_load} kg."
+            f"traffic load by {payload - allowed_payload} kg."
         )
 
 
