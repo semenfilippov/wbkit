@@ -1,8 +1,17 @@
-from typing import Dict
+from typing import Dict, Union
 
 
 class FuelEffect:
-    def __init__(self, fuel_effect: Dict[int, float]) -> None:
+    def __init__(self, fuel_effect: Dict[int, Union[int, float]]) -> None:
+        """Construct new FuelEffect object.
+
+        Args:
+            ``fuel_effect`` (Dict[int, int | float]]): keys are fuel weights,
+            values are index influencies
+
+        Raises:
+            ValueError: if fuel_effect is empty
+        """
         if not fuel_effect:
             raise ValueError(
                 "Argument fuel_effect must constist at least of one key value pair"
