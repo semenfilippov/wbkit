@@ -1,41 +1,39 @@
-def calc_stab(mactow: float) -> float:
-    """
-    Get takeoff stab trim setting for given %MAC.
-
-    The function is derived from the fact that:
-
-    MAC 8.8 => STAB 8.15
-
-    MAC 35  => STAB 4.00
-
-    Therefore:
-
-    f(x) = -0.158397x + 9.54389
-
-    Args:
-        ``mactow`` (float): %MAC for takeoff
-
-    Raises:
-        ``ValueError``: If provided ``mactow`` is out of range (8.8-35.0)
-
-    Returns:
-        ``float``: stabilizer trim setting
-    """
-    if mactow < 8.8 or mactow > 35:
-        raise ValueError(
-            f"MAC {mactow} is out of range. Should be within 8.8-35.0 %MAC."
-        )
-    return mactow * -0.158397 + 9.54389
+from typing import Dict, Union
+from numpy import interp
 
 
-def eicas_round(stab_trim_setting: float) -> float:
-    """
-    Rounds stab trim setting up to 0.2 (as displayed on EICAS).
+class Stab:
+    """Stabilizer trim calculator"""
 
-    Args:
-        ``stab_trim_setting`` (float): stab trim setting
+    def __init__(self, points: Dict[Union[int, float], Union[int, float]]) -> None:
+        """Get new stabilizer trim calculator.
 
-    Returns:
-        ``float``: rounded value
-    """
-    return round(stab_trim_setting / 2, 1) * 2
+        Args:
+            ``points`` (Dict[int | float, int | float]): stab trim function points,
+            where keys are MAC/RC values, values are corresponding stab trim settings
+
+        Raises:
+            ValueError: if ``points`` length is less than 2
+        """
+        if len(points) < 2:
+            raise ValueError("You should provide at least two points!")
+        self.xp = sorted([x for x in points])
+        self.xp_min = min(self.xp)
+        self.xp_max = max(self.xp)
+        self.fp = [points[x] for x in self.xp]
+
+    def calc(self, mactow: float) -> float:
+        """Get takeoff stab trim setting for given %MAC.
+
+        Args:
+            mactow (float): %MAC/RC for TOW
+
+        Raises:
+            ValueError: if mactow is outside of defined range
+
+        Returns:
+            float: stab trim setting
+        """
+        if mactow < self.xp_min or mactow > self.xp_max:
+            raise ValueError(f"MACTOW should be within {self.xp_min}% - {self.xp_max}%")
+        return interp(mactow, self.xp, self.fp)
