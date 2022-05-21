@@ -6,8 +6,8 @@ class FuelEffect:
         """Construct new FuelEffect object.
 
         Args:
-            ``fuel_effect`` (Dict[int, int | float]]): keys are fuel weights,
-            values are index influencies
+            ``fuel_effect`` (Dict[int, int | float]]): keys are fuel quantities,
+            values are their index influencies
 
         Raises:
             ValueError: if fuel_effect is empty
@@ -19,6 +19,24 @@ class FuelEffect:
         self.fuel_effect = fuel_effect
         self.min_fuel = min(self.fuel_effect)
         self.max_fuel = max(self.fuel_effect)
+
+    def get_min_fuel(self) -> int:
+        """Get minimum fuel quantity FuelEffect object is able
+        to give index influence for.
+
+        Returns:
+            int: fuel quantity
+        """
+        return self.min_fuel
+
+    def get_max_fuel(self) -> int:
+        """Get maximum fuel quantity FuelEffect object is able
+        to give index influence for.
+
+        Returns:
+            int: fuel quantity
+        """
+        return self.max_fuel
 
     def get_influence(self, fuel: int) -> float:
         """Get closest fuel index.

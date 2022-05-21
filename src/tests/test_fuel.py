@@ -52,6 +52,14 @@ def test_empty_dict():
         FuelEffect({})
 
 
+def test_get_min(fe_obj: FuelEffect):
+    assert fe_obj.get_min_fuel() == 200
+
+
+def test_get_max(fe_obj: FuelEffect):
+    assert fe_obj.get_max_fuel() == 6488
+
+
 def test_get_less_than_min(fe_obj: FuelEffect):
     with pytest.raises(ValueError):
         fe_obj.get_influence(100)
