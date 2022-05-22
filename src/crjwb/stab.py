@@ -1,5 +1,5 @@
 from typing import Dict, Union
-from numpy import interp
+import numpy as np
 
 
 class Stab:
@@ -41,4 +41,4 @@ class Stab:
         """
         if mactow < self.xp_min or mactow > self.xp_max:
             raise ValueError(f"MACTOW should be within {self.xp_min}% - {self.xp_max}%")
-        return interp(mactow, self.xp, self.fp)
+        return float(np.interp(mactow, self.xp, self.fp))
