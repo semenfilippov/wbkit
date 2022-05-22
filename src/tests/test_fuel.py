@@ -44,7 +44,7 @@ def fe_dict() -> dict:
 
 @pytest.fixture(scope="module")
 def fe_obj(fe_dict: dict) -> FuelEffect:
-    yield FuelEffect(fe_dict)
+    return FuelEffect(fe_dict)
 
 
 def test_empty_dict():
