@@ -29,12 +29,16 @@ class BasicCalc:
 
     def calc_index(self, weight: float, station: float) -> float:
         """Calculate index.
-        Args:
-            ``weight`` (float): actual weight
-            ``station`` (float): horizontal distance in meters
-            from station zero to the location
-        Returns:
-            ``float``: index
+
+        Parameters
+        ----------
+        ``weight`` (float): actual weight
+        ``station`` (float): horizontal distance in meters
+        from station zero to the location
+
+        Returns
+        ----------
+        ``float``: index
         """
         return float(
             (weight * (station - self.ref_station)) / self.c_constant + self.k_constant
@@ -43,12 +47,14 @@ class BasicCalc:
     def calc_macrc(self, idx: float, weight: float) -> float:
         """Calculate MAC/RC.
 
-        Args:
-            ``idx`` (float): index value corresponding to respective weight
-            ``weight`` (float): actual weight
+        Parameters
+        ----------
+        ``idx`` (float): index value corresponding to respective weight
+        ``weight`` (float): actual weight
 
-        Returns:
-            ``float``: MAC/RC
+        Returns
+        ----------
+        ``float``: MAC/RC
         """
         return (
             ((self.c_constant * (idx - self.k_constant)) / weight)

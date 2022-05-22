@@ -8,12 +8,14 @@ class Stab:
     def __init__(self, points: Dict[Union[int, float], Union[int, float]]) -> None:
         """Get new stabilizer trim calculator.
 
-        Args:
-            ``points`` (Dict[int | float, int | float]): stab trim function points,
-            where keys are MAC/RC values, values are corresponding stab trim settings
+        Parameters
+        ----------
+        ``points`` (Dict[int | float, int | float]): stab trim function points,
+        where keys are MAC/RC values, values are corresponding stab trim settings
 
-        Raises:
-            ValueError: if ``points`` length is less than 2
+        Raises
+        ----------
+        ValueError: if ``points`` length is less than 2
         """
         if len(points) < 2:
             raise ValueError("You should provide at least two points!")
@@ -25,14 +27,17 @@ class Stab:
     def calc(self, mactow: float) -> float:
         """Get takeoff stab trim setting for given %MAC.
 
-        Args:
-            mactow (float): %MAC/RC for TOW
+        Parameters
+        ----------
+        mactow (float): %MAC/RC for TOW
 
-        Raises:
-            ValueError: if mactow is outside of defined range
+        Raises
+        ----------
+        ValueError: if mactow is outside of defined range
 
-        Returns:
-            float: stab trim setting
+        Returns
+        ----------
+        float: stab trim setting
         """
         if mactow < self.xp_min or mactow > self.xp_max:
             raise ValueError(f"MACTOW should be within {self.xp_min}% - {self.xp_max}%")
