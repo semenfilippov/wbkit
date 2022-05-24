@@ -2,6 +2,9 @@ from typing import Dict, Union
 import numpy as np
 
 
+LinearFuncPoints = Dict[int, Union[float, int]]
+
+
 class BasicCalc:
     def __init__(
         self,
@@ -64,11 +67,11 @@ class BasicCalc:
 
 
 class Interpolable:
-    def __init__(self, points: Dict[int, Union[float, int]]) -> None:
-        """Create Interpolatable object.
+    def __init__(self, points: LinearFuncPoints) -> None:
+        """Create Interpolable object.
 
         Args:
-            `points` (Dict[int, Union[float, int]]): {x: f(x)} dict
+            `points` LinearFuncPoints: {x: f(x)} dict,
             order of x values may be arbitrary
 
         Raises:
@@ -129,9 +132,16 @@ class Interpolable:
         return float(np.interp(x, self.__xp__, self.__fp__))
 
     def get_defined_value(self, x: int) -> Union[float, int]:
-        """Get nearest defined f(x). The logic of this method is as follows.
+        """Get nearest defined f(x).
+
+        WARNING! In this method `x` is explicitly converted
+        to int to avoid unexpected behaviour
+        due floating points calculation errors.
+
+        The logic of this method is as follows.
 
         If `x` is found among `self.points` keys, return its value.
+
         If not, calculate minimal distance between given x
         and each key in `self.points`. If there is more than one value
         for `self.points[x+-difference]`, return the one which
@@ -142,11 +152,12 @@ class Interpolable:
             `x` (int): x value
 
         Returns:
-            `Union[float, int]`: nearest defined f(x)
+            `float | int`: nearest defined f(x)
         """
-        self.__validate_in_range__(x)
         if x in self.__points__:
             return self.__points__[x]
+        x = int(x)
+        self.__validate_in_range__(x)
         min_diff = min({abs(x - f) for f in self.__points__})
         possible_values = [
             self.__points__[xd]

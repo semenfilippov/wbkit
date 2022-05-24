@@ -1,9 +1,8 @@
-from typing import Dict, Union
-from crjwb.basic import Interpolable
+from crjwb.basic import Interpolable, LinearFuncPoints
 
 
 class FuelEffect(Interpolable):
-    def __init__(self, points: Dict[int, Union[int, float]]) -> None:
+    def __init__(self, points: LinearFuncPoints) -> None:
         """Get new FuelEffect object.
 
         Args:
