@@ -1,9 +1,9 @@
 from typing import Dict, Union
 
-from crjwb.basic import Interpolatable
+from crjwb.basic import Interpolable
 
 
-class Stab(Interpolatable):
+class Stab(Interpolable):
     """Stabilizer trim calculator"""
 
     def __init__(self, points: Dict[int, Union[int, float]]) -> None:

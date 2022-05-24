@@ -63,7 +63,7 @@ class BasicCalc:
         ) / (self.macrc_length / 100)
 
 
-class Interpolatable:
+class Interpolable:
     def __init__(self, points: Dict[int, Union[float, int]]) -> None:
         """Create Interpolatable object.
 
