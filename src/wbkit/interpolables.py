@@ -18,7 +18,7 @@ class Interpolable:
         if len(points) < 2:
             raise ValueError(
                 "You should provide at least two points "
-                "to construct Interpolateble object!"
+                "to construct Interpolable object!"
             )
         self.__points__ = points
         self.__xp__ = sorted([x for x in self.__points__])

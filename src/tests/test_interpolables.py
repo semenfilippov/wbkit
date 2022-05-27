@@ -1,5 +1,5 @@
 import pytest
-from crjwb.interpolables import FuelEffect, Interpolable, Stab
+from wbkit.interpolables import FuelEffect, Interpolable, Stab
 
 
 @pytest.fixture(scope="module")

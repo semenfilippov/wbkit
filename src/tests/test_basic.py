@@ -1,5 +1,5 @@
 import pytest
-from crjwb.basic import PercentMAC, Index
+from wbkit.basic import PercentMAC, Index
 
 
 @pytest.fixture(scope="module")
