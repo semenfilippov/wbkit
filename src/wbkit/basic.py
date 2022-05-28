@@ -112,6 +112,11 @@ class Index:
         sum_idxs = self.value - other.value
         return Index(sum_idxs, sum_weights, self.ref_st, self.c, self.k)
 
+    def __mul__(self, other):
+        return Index(
+            self.value * other, self.weight * other, self.ref_st, self.c, self.k
+        )
+
     def __eq__(self, other):
         self.__validate_compare_ops__(other)
         return self.moment == other.moment

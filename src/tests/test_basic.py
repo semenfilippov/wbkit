@@ -114,6 +114,11 @@ def test_sub():
     assert c.weight == a.weight - b.weight
 
 
+def test_mul(ref_st: float, c: int, k: int):
+    idx = Index(-1, 1, ref_st, c, k)
+    assert idx * 10 == Index(-10, 10, ref_st, c, k)
+
+
 def test_eq():
     a = Index(5, 20, 10, 1, 0)
     b = Index(5, 20, 10, 1, 0)
@@ -170,6 +175,8 @@ def test_pctmac_init(lemac_at: float, macrc_length: float):
         "macrc_length",
     ],
     [
+        (61.84, 14007, 35.42, "ref_st", "c", "k", "lemac_at", "macrc_length"),
+        (49.81, 14434, 25.90, "ref_st", "c", "k", "lemac_at", "macrc_length"),
         (29.84, 17841, 13.52, "ref_st", "c", "k", "lemac_at", "macrc_length"),
         (23.72, 21627, 12.58, "ref_st", "c", "k", "lemac_at", "macrc_length"),
         (23.83, 20354, 11.80, "ref_st", "c", "k", "lemac_at", "macrc_length"),
