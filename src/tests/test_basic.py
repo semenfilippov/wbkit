@@ -1,5 +1,5 @@
 import pytest
-from wbkit.basic import PercentMAC, Index
+from wbkit.basic import Index, IndexInfluence, PercentMAC
 
 
 @pytest.fixture(scope="module")
@@ -153,7 +153,25 @@ def test_le():
     assert a <= c
 
 
-# TODO: PercentMAC tests
+# IndexInfluence tests
+
+
+def test_init_idx_influence(ref_st: float, c: int, k: int):
+    influence = IndexInfluence(-1, ref_st, c, k)
+    assert influence.__influence__ == Index(-1, 1, ref_st, c, k)
+
+
+def test_mul_influence(ref_st: float, c: int, k: int):
+    influence = IndexInfluence(-1, ref_st, c, k)
+    assert influence * 10 == Index(-10, 10, ref_st, c, k)
+
+
+def test_get_idx_from_influence(ref_st: float, c: int, k: int):
+    influence = IndexInfluence(-1, ref_st, c, k)
+    assert influence.get_idx(10) == Index(-10, 10, ref_st, c, k)
+
+
+# PercentMAC tests
 
 
 def test_pctmac_init(lemac_at: float, macrc_length: float):

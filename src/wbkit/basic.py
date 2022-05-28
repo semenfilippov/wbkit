@@ -138,6 +138,38 @@ class Index:
         return self < other or self == other
 
 
+class IndexInfluence:
+    """Index influence representation. Basically a convinience class."""
+
+    def __init__(self, influence: float, ref_st: float, c: int, k: int) -> None:
+        """Create new IndexInfluence object.
+
+        Args:
+            influence (float): index influence per 1 weight unit
+            ref_st (float): Reference station/axis. Selected station
+            around which all index values are calculated
+            c (int): Constant used as a denominator to convert
+            moment values into index values
+            k (int): Constant used as a plus value to avoid
+            negative index figures
+        """
+        self.__influence__ = Index(influence, 1, ref_st, c, k)
+
+    def __mul__(self, other) -> Index:
+        return self.__influence__ * other
+
+    def get_idx(self, for_weight: int) -> Index:
+        """Get Index object for given weight.
+
+        Args:
+            for_weight (int): corresponding weight
+
+        Returns:
+            Index: influence multiplied by weight
+        """
+        return self * for_weight
+
+
 class PercentMAC:
     """%MAC representation."""
 
