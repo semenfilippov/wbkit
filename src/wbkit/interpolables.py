@@ -1,15 +1,15 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Sequence, Tuple, Union
 import numpy as np
 
 
 class Interpolable:
     def __init__(
-        self, points: List[Tuple[Union[int, float], Union[int, float]]]
+        self, points: Sequence[Tuple[Union[int, float], Union[int, float]]]
     ) -> None:
         """Create Interpolable object.
 
         Args:
-            points (List[Tuple[int | float, int | float]]):
+            points (Sequence[Tuple[int | float, int | float]]):
                 x : f(x) pairs
 
         Raises:
@@ -41,12 +41,12 @@ class Interpolable:
         return Interpolable([(x, points[x]) for x in points])
 
     @staticmethod
-    def from_lists(xp: List[Union[int, float]], fp: List[Union[int, float]]):
-        """Initialize Interpolable object using lists of xp and fp values.
+    def from_lists(xp: Sequence[Union[int, float]], fp: Sequence[Union[int, float]]):
+        """Initialize Interpolable object using sequences of xp and fp values.
 
         Args:
-            xp (List[int | float]): x values
-            fp (List[int | float]): f(x) values
+            xp (Sequence[int | float]): x values
+            fp (Sequence[int | float]): f(x) values
 
         Returns:
             Interpolable: Interpolable object
