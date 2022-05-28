@@ -41,9 +41,13 @@ class TestIndex:
         with pytest.raises(ValueError, match="C constant should be greater than 0"):
             Index(50, 14500, 10.0, c, 50)
 
-    def test_init_k_lt_zero_raises(self):
+    def test_init_negative_k_raises(self):
         with pytest.raises(ValueError, match="K constant should not be negative"):
             Index(50, 14500, 10.0, 1, -1)
+
+    def test_init_negative_weight_raises(self):
+        with pytest.raises(ValueError, match="weight should not be negative"):
+            Index(50, -1, 10.0, 1, 1)
 
     @pytest.mark.parametrize(
         ["idx_value", "weight", "c", "k"], [(10, 10, 1, 0), (48.5, 14500, 280, 50)]
@@ -95,7 +99,7 @@ class TestIndex:
         assert c.weight == a.weight + b.weight
 
     def test_sub(self):
-        a = Index(5, 20, 10, 1, 0)
+        a = Index(5, 40, 10, 1, 0)
         b = Index(2, 30, 10, 1, 0)
         c = a - b
         assert c.value == a.value - b.value

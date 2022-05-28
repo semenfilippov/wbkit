@@ -21,6 +21,8 @@ class Index:
             raise ValueError("C constant should be greater than 0")
         if k < 0:
             raise ValueError("K constant should not be negative")
+        if weight < 0:
+            raise ValueError("weight should not be negative")
         self.value = idx
         self.weight = weight
         self.ref_st = ref_st
