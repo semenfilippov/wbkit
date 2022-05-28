@@ -28,7 +28,7 @@ def lemac_at() -> float:
 
 
 class TestIndex:
-    def test_init_wbindex(self, ref_st: float, c: int, k: int):
+    def test_init(self, ref_st: float, c: int, k: int):
         idx = Index(50, 14500, ref_st, c, k)
         assert idx.value == 50
         assert idx.weight == 14500
@@ -37,11 +37,11 @@ class TestIndex:
         assert idx.k == k
 
     @pytest.mark.parametrize(["c"], [(0,), (-1,)])
-    def test_no_negative_or_zero_c(self, c):
+    def test_init_c_le_zero_raises(self, c):
         with pytest.raises(ValueError, match="C constant should be greater than 0"):
             Index(50, 14500, 10.0, c, 50)
 
-    def test_no_negative_k(self):
+    def test_init_k_lt_zero_raises(self):
         with pytest.raises(ValueError, match="K constant should not be negative"):
             Index(50, 14500, 10.0, 1, -1)
 
@@ -135,25 +135,19 @@ class TestIndex:
         assert a <= c
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def idx_infl(ref_st, c, k) -> IndexInfluence:
     return IndexInfluence(-1, ref_st, c, k)
 
 
 class TestIndexInfluence:
-    def test_init_idx_influence(
-        self, idx_infl: IndexInfluence, ref_st: float, c: int, k: int
-    ):
+    def test_init(self, idx_infl: IndexInfluence, ref_st: float, c: int, k: int):
         assert idx_infl.__influence__ == Index(-1, 1, ref_st, c, k)
 
-    def test_mul_influence(
-        self, idx_infl: IndexInfluence, ref_st: float, c: int, k: int
-    ):
+    def test_mul(self, idx_infl: IndexInfluence, ref_st: float, c: int, k: int):
         assert idx_infl * 10 == Index(-10, 10, ref_st, c, k)
 
-    def test_get_idx_from_influence(
-        self, idx_infl: IndexInfluence, ref_st: float, c: int, k: int
-    ):
+    def test_get_idx(self, idx_infl: IndexInfluence, ref_st: float, c: int, k: int):
         assert idx_infl.get_idx(10) == Index(-10, 10, ref_st, c, k)
 
 
@@ -161,7 +155,7 @@ class TestIndexInfluence:
 
 
 class TestPercentMAC:
-    def test_pctmac_init(self, lemac_at: float, macrc_length: float):
+    def test_init(self, lemac_at: float, macrc_length: float):
         pctmac = PercentMAC(13.52, lemac_at, macrc_length)
         assert pctmac.value == 13.52
         assert pctmac.lemac_at == lemac_at
@@ -187,7 +181,7 @@ class TestPercentMAC:
         ],
         indirect=["ref_st", "c", "k", "lemac_at", "macrc_length"],
     )
-    def test_pctmac_from_idx(
+    def test_from_idx(
         self,
         idx_value: float,
         weight: int,
@@ -222,7 +216,7 @@ class TestPercentMAC:
         ],
         indirect=["ref_st", "c", "k", "lemac_at", "macrc_length"],
     )
-    def test_pctmac_to_idx(
+    def test_to_idx(
         self,
         idx_value: float,
         weight: int,
