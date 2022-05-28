@@ -117,11 +117,11 @@ def test_empty_dict():
 
 
 def test_get_min(fe_obj: FuelEffect):
-    assert fe_obj.get_min() == 200
+    assert fe_obj.min_x == 200
 
 
 def test_get_max(fe_obj: FuelEffect):
-    assert fe_obj.get_max() == 6488
+    assert fe_obj.max_x == 6488
 
 
 def test_get_less_than_min(fe_obj: FuelEffect):

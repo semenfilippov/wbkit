@@ -23,24 +23,24 @@ class Interpolable:
         self.__points__ = points
         self.__xp__ = sorted([x for x in self.__points__])
         self.__fp__ = [points[x] for x in self.__xp__]
-        self.__min_x__ = min(self.__xp__)
-        self.__max_x__ = max(self.__xp__)
 
-    def get_min(self) -> int:
+    @property
+    def min_x(self) -> int:
         """Get minumum x value of defined x range.
 
         Returns:
             `int`: min(x)
         """
-        return self.__min_x__
+        return min(self.__xp__)
 
-    def get_max(self) -> int:
+    @property
+    def max_x(self) -> int:
         """Get maximum x value of defined x range.
 
         Returns:
             `int`: max(x)
         """
-        return self.__max_x__
+        return max(self.__xp__)
 
     def __validate_in_range__(self, x: Union[float, int]):
         """This method is intended for internal use to validate if
@@ -52,10 +52,10 @@ class Interpolable:
         Raises:
             `ValueError`: if `x` is not within Interpolateble object x range
         """
-        if x < self.__min_x__:
-            raise ValueError(f"x is out of range, should be >= {self.__min_x__}")
-        if x > self.__max_x__:
-            raise ValueError(f"x is out of range, should be <= {self.__max_x__}")
+        if x < self.min_x:
+            raise ValueError(f"x is out of range, should be >= {self.min_x}")
+        if x > self.max_x:
+            raise ValueError(f"x is out of range, should be <= {self.max_x}")
 
     def get_interpolated_value(self, x: Union[float, int]) -> float:
         """Get interpolated f(x).
