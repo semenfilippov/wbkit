@@ -119,23 +119,23 @@ class Index:
             self.value * other, self.weight * other, self.ref_st, self.c, self.k
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         self.__validate_compare_ops__(other)
         return self.moment == other.moment
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         self.__validate_compare_ops__(other)
         return self.moment > other.moment
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         self.__validate_compare_ops__(other)
         return self.moment < other.moment
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         self.__validate_compare_ops__(other)
         return self > other or self == other
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         self.__validate_compare_ops__(other)
         return self < other or self == other
 
