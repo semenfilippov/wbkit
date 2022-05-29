@@ -1,3 +1,4 @@
+from typing import Tuple
 import pytest
 from wbkit.basic import Index, IndexInfluence, PercentMAC
 
@@ -15,6 +16,11 @@ def c() -> int:
 @pytest.fixture(scope="module")
 def k() -> int:
     return 50
+
+
+@pytest.fixture
+def rck(ref_st: float, c: int, k: int) -> Tuple[float, int, int]:
+    return ref_st, c, k
 
 
 @pytest.fixture(scope="module")
@@ -74,9 +80,9 @@ class TestIndex:
 
     @staticmethod
     @pytest.mark.parametrize(["ref_st", "c", "k"], [(5, 1, 0), (10, 2, 0), (10, 1, 2)])
-    def test_validate_calc_ops_raises(ref_st: float, c: int, k: int):
+    def test_validate_calc_ops_raises(rck):
         a = Index(10, 10, 10, 1, 0)
-        b = Index(10, 10, ref_st, c, k)
+        b = Index(10, 10, *rck)
         with pytest.raises(
             ValueError,
             match="Calculations for Index operands with different "
@@ -163,22 +169,22 @@ class TestIndex:
 
 
 @pytest.fixture
-def idx_infl(ref_st, c, k) -> IndexInfluence:
-    return IndexInfluence(-1, ref_st, c, k)
+def idx_infl(rck) -> IndexInfluence:
+    return IndexInfluence(-1, *rck)
 
 
 class TestIndexInfluence:
     @staticmethod
-    def test_init(idx_infl: IndexInfluence, ref_st: float, c: int, k: int):
-        assert idx_infl.__influence__ == Index(-1, 1, ref_st, c, k)
+    def test_init(idx_infl: IndexInfluence, rck):
+        assert idx_infl.__influence__ == Index(-1, 1, *rck)
 
     @staticmethod
-    def test_mul(idx_infl: IndexInfluence, ref_st: float, c: int, k: int):
-        assert idx_infl * 10 == Index(-10, 10, ref_st, c, k)
+    def test_mul(idx_infl: IndexInfluence, rck):
+        assert idx_infl * 10 == Index(-10, 10, *rck)
 
     @staticmethod
-    def test_get_idx(idx_infl: IndexInfluence, ref_st: float, c: int, k: int):
-        assert idx_infl.get_idx(10) == Index(-10, 10, ref_st, c, k)
+    def test_get_idx(idx_infl: IndexInfluence, rck):
+        assert idx_infl.get_idx(10) == Index(-10, 10, *rck)
 
 
 # PercentMAC tests
