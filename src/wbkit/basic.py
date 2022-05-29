@@ -29,6 +29,10 @@ class Index:
         self.c = c
         self.k = k
 
+    @staticmethod
+    def from_moment(moment: float, weight: int, ref_st: float, c: int, k: int):
+        return Index(moment / c + k, weight, ref_st, c, k)
+
     @property
     def moment(self) -> float:
         """Get moment value.
@@ -221,10 +225,11 @@ class PercentMAC:
             k (int): Constant used as a plus value to avoid
             negative index figures
 
-        Raises:
-            NotImplementedError: _description_
+        Returns:
+            Index: calculated Index object
         """
         # TODO: implement this!
-        raise NotImplementedError(
-            "Conversion from PercentMAC to Index is not yet implemented"
-        )
+        moment = (
+            (self.value * (self.macrc_length / 100)) - ref_st + self.lemac_at
+        ) * weight
+        return Index.from_moment(moment, weight, ref_st, c, k)
