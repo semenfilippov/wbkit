@@ -24,8 +24,8 @@ class Interpolable:
         if not len(points) == len({x[0] for x in points}):
             raise ValueError("xp values should be unique")
         sorted_points = sorted(points, key=lambda x: x[0])
-        self.__xp__ = np.array([x[0] for x in sorted_points], dtype=np.double)
-        self.__fp__ = np.array([x[1] for x in sorted_points], dtype=np.double)
+        self.__xp__ = np.array(tuple(x[0] for x in sorted_points), dtype=np.double)
+        self.__fp__ = np.array(tuple(x[1] for x in sorted_points), dtype=np.double)
 
     @staticmethod
     def from_dict(points: Dict[Union[int, float], Union[int, float]]):
@@ -38,10 +38,12 @@ class Interpolable:
         Returns:
             Interpolable: Interpolable object
         """
-        return Interpolable([(x, points[x]) for x in points])
+        return Interpolable(tuple((x, points[x]) for x in points))
 
     @staticmethod
-    def from_lists(xp: Sequence[Union[int, float]], fp: Sequence[Union[int, float]]):
+    def from_xp_fp_seqs(
+        xp: Sequence[Union[int, float]], fp: Sequence[Union[int, float]]
+    ):
         """Initialize Interpolable object using sequences of xp and fp values.
 
         Args:
@@ -51,7 +53,7 @@ class Interpolable:
         Returns:
             Interpolable: Interpolable object
         """
-        return Interpolable(list(zip(xp, fp)))
+        return Interpolable(tuple(zip(xp, fp)))
 
     @property
     def min_x(self) -> Union[int, float]:
