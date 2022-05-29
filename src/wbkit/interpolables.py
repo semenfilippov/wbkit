@@ -1,4 +1,4 @@
-from typing import Dict, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 
 import numpy as np
 from shapely.geometry import LineString
@@ -28,34 +28,6 @@ class Interpolable:
         self.__points__ = tuple(sorted(points, key=lambda x: x[0]))
         self.__xp__ = np.array(tuple(x[0] for x in self.__points__), dtype=np.double)
         self.__fp__ = np.array(tuple(x[1] for x in self.__points__), dtype=np.double)
-
-    @staticmethod
-    def from_dict(points: Dict[Union[int, float], Union[int, float]]):
-        """Initialize Interpolable object using dict.
-
-        Args:
-            points (Dict[int | float, int | float]):
-                x : f(x) pairs
-
-        Returns:
-            Interpolable: Interpolable object
-        """
-        return Interpolable(tuple((x, points[x]) for x in points))
-
-    @staticmethod
-    def from_xp_fp_seqs(
-        xp: Sequence[Union[int, float]], fp: Sequence[Union[int, float]]
-    ):
-        """Initialize Interpolable object using sequences of xp and fp values.
-
-        Args:
-            xp (Sequence[int | float]): x values
-            fp (Sequence[int | float]): f(x) values
-
-        Returns:
-            Interpolable: Interpolable object
-        """
-        return Interpolable(tuple(zip(xp, fp)))
 
     @property
     def min_x(self) -> Union[int, float]:
