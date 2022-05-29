@@ -86,6 +86,17 @@ class Interpolable:
         return after if x - before >= after - x else before
 
     def intersects(self, other) -> bool:
+        """Check if Interpolable function lines intersect.
+
+        Args:
+            other (Interpolable): Interpolable object to check intersection with.
+
+        Raises:
+            NotImplementedError: if `other` type is not Interpolable
+
+        Returns:
+            bool: True if Interpolable objects intersect, otherwise False
+        """
         if isinstance(other, Interpolable):
             return self.linestring.intersects(other.linestring)
         raise NotImplementedError(
