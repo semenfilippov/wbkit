@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from wbkit.interpolables import Interpolable
+from shapely.geometry import LineString
 
 
 class TestInterpolable:
@@ -34,6 +35,17 @@ class TestInterpolable:
     def test_max_prop(self):
         assert self.i_obj.max_x == 3
 
+    def test_linestring_prop(self):
+        assert self.i_obj.linestring == (
+            LineString(
+                [
+                    (-1, 10),
+                    (2, 20),
+                    (3, 30),
+                ]
+            )
+        )
+
     def test_validate_in_range_raises_lt(self):
         with pytest.raises(
             ValueError, match=f"x is out of range, should be >= {self.i_obj.min_x}"
@@ -51,6 +63,18 @@ class TestInterpolable:
     )
     def test_get_nearest_xp(self, x, exp_value):
         assert self.i_obj.__get_nearest_x__(x) == exp_value
+
+    @staticmethod
+    def test_intersects():
+        a = Interpolable([(0, 0), (10, 10)])
+        b = Interpolable([(10, 0), (0, 10)])
+        assert a.intersects(b)
+
+    @staticmethod
+    def test_does_not_intersect():
+        a = Interpolable([(0, 0), (10, 10)])
+        b = Interpolable([(-1, 0), (-10, 10)])
+        assert not a.intersects(b)
 
     @pytest.mark.parametrize(
         ["x", "exp_value"],

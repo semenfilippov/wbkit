@@ -1,6 +1,7 @@
 from typing import Dict, Sequence, Tuple, Union
 
 import numpy as np
+from shapely.geometry import LineString
 
 
 class Interpolable:
@@ -24,9 +25,9 @@ class Interpolable:
             )
         if not len(points) == len({x[0] for x in points}):
             raise ValueError("xp values should be unique")
-        sorted_points = sorted(points, key=lambda x: x[0])
-        self.__xp__ = np.array(tuple(x[0] for x in sorted_points), dtype=np.double)
-        self.__fp__ = np.array(tuple(x[1] for x in sorted_points), dtype=np.double)
+        self.__points__ = tuple(sorted(points, key=lambda x: x[0]))
+        self.__xp__ = np.array(tuple(x[0] for x in self.__points__), dtype=np.double)
+        self.__fp__ = np.array(tuple(x[1] for x in self.__points__), dtype=np.double)
 
     @staticmethod
     def from_dict(points: Dict[Union[int, float], Union[int, float]]):
@@ -74,6 +75,10 @@ class Interpolable:
         """
         return np.max(self.__xp__)
 
+    @property
+    def linestring(self) -> LineString:
+        return LineString(self.__points__)
+
     def __validate_in_range__(self, x: Union[int, float]):
         """This method is intended for internal use to validate if
         given x is in defined x range.
@@ -107,6 +112,14 @@ class Interpolable:
         before = self.__xp__[pos - 1]
         after = self.__xp__[pos]
         return after if x - before >= after - x else before
+
+    def intersects(self, other) -> bool:
+        if isinstance(other, Interpolable):
+            return self.linestring.intersects(other.linestring)
+        raise NotImplementedError(
+            f"can only check intersection to other "
+            f"Interpolable object, {type(other)} given"
+        )
 
     def interp(self, x: Union[float, int]) -> float:
         """Get interpolated f(x).
