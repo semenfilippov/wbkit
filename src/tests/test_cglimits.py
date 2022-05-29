@@ -1,4 +1,5 @@
 from typing import List, Tuple
+
 import pytest
 from wbkit.basic import Index, PercentMAC
 from wbkit.cglimits import LimitLine

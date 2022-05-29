@@ -1,4 +1,5 @@
 from typing import Sequence, Tuple, Union
+
 from wbkit.basic import Index, PercentMAC
 from wbkit.interpolables import Interpolable
 
