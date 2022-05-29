@@ -8,13 +8,13 @@ def ref_st() -> float:
 
 
 @pytest.fixture(scope="module")
-def k() -> int:
-    return 50
+def c() -> int:
+    return 280
 
 
 @pytest.fixture(scope="module")
-def c() -> int:
-    return 280
+def k() -> int:
+    return 50
 
 
 @pytest.fixture(scope="module")
