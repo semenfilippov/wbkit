@@ -1,10 +1,10 @@
-from typing import Sequence, Tuple, Union
+from bisect import bisect_left
+from typing import Optional, Sequence, Tuple, Union
 
-import numpy as np
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
 
 
-class Interpolable:
+class Interpolable(LineString):
     def __init__(
         self, points: Sequence[Tuple[Union[int, float], Union[int, float]]]
     ) -> None:
@@ -18,94 +18,71 @@ class Interpolable:
             ValueError: if len(points) < 2
             ValueError: if points contain duplicate values for x
         """
-        if len(points) < 2:
-            raise ValueError(
-                "You should provide at least two points "
-                "to construct Interpolable object"
-            )
-        if not len(points) == len({x[0] for x in points}):
-            raise ValueError("xp values should be unique")
-        self.__points__ = tuple(sorted(points, key=lambda x: x[0]))
-        self.__xp__ = np.array(tuple(x[0] for x in self.__points__), dtype=np.double)
-        self.__fp__ = np.array(tuple(x[1] for x in self.__points__), dtype=np.double)
+        super().__init__(sorted(points, key=lambda x: x[0]))
+        if not len(self.coords) == len({x[0] for x in self.coords}):
+            raise ValueError("duplicate x values are not allowed")
 
     @property
     def min_x(self) -> Union[int, float]:
         """Get minumum x value of defined x range.
 
         Returns:
-            int: min(x)
+            int: min(xp)
         """
-        return np.min(self.__xp__)
+        return self.bounds[0]
 
     @property
     def max_x(self) -> Union[int, float]:
         """Get maximum x value of defined x range.
 
         Returns:
-            int: max(x)
+            int: max(xp)
         """
-        return np.max(self.__xp__)
+        return self.bounds[2]
 
     @property
-    def linestring(self) -> LineString:
-        return LineString(self.__points__)
-
-    def __validate_in_range__(self, x: Union[int, float]):
-        """This method is intended for internal use to validate if
-        given x is in defined x range.
-
-        Args:
-            x : x value to validate
-
-        Raises:
-            `ValueError`: if x is not within Interpolateble object x range
-        """
-        if x < self.min_x:
-            raise ValueError(f"x is out of range, should be >= {self.min_x}")
-        if x > self.max_x:
-            raise ValueError(f"x is out of range, should be <= {self.max_x}")
-
-    def __get_nearest_x__(self, x: Union[int, float]) -> Union[int, float]:
-        """Get defined x value closest to given x.
-        If x value is equally distant between two defined values, return greater one.
-
-        Args:
-            x (Union[int, float]): requested x value
+    def min_y(self) -> Union[int, float]:
+        """Get minumum defined f(x).
 
         Returns:
-            Union[int, float]: x value closest to given one
+            int: min(fp)
         """
-        pos = np.searchsorted(self.__xp__, x)
+        return self.bounds[1]
+
+    @property
+    def max_y(self) -> Union[int, float]:
+        """Get maximum defined f(x).
+
+        Returns:
+            int: max(fp)
+        """
+        return self.bounds[3]
+
+    @property
+    def __xp__(self):
+        return tuple(self.xy[0])
+
+    @property
+    def __fp__(self):
+        return tuple(self.xy[1])
+
+    def __contains__(self, x: Union[int, float]) -> bool:
+        return self.min_x <= x <= self.max_x
+
+    def get_defined_f(self, x: Union[int, float]) -> Optional[float]:
+        if x not in self:
+            raise ValueError(f"x should be in range {self.min_x} - {self.max_x}")
+        pos = bisect_left(self.__xp__, x)
         if pos == 0:
-            return self.__xp__[0]
+            return self.__fp__[0]
         if pos == len(self.__xp__):
-            return self.__xp__[-1]
+            return self.__fp__[-1]
         before = self.__xp__[pos - 1]
         after = self.__xp__[pos]
-        return after if x - before >= after - x else before
+        return self.__fp__[pos] if x - before >= after - x else self.__fp__[pos - 1]
 
-    def intersects(self, other) -> bool:
-        """Check if Interpolable function lines intersect.
-
-        Args:
-            other (Interpolable): Interpolable object to check intersection with.
-
-        Raises:
-            NotImplementedError: if `other` type is not Interpolable
-
-        Returns:
-            bool: True if Interpolable objects intersect, otherwise False
-        """
-        if isinstance(other, Interpolable):
-            return self.linestring.intersects(other.linestring)
-        raise NotImplementedError(
-            f"can only check intersection to other "
-            f"Interpolable object, {type(other)} given"
-        )
-
-    def interp(self, x: Union[float, int]) -> float:
-        """Get interpolated f(x).
+    def __getitem__(self, x: Union[float, int]) -> float:
+        """Get f(x).
 
         Args:
             x (Union[float, int]): x value to interpolate
@@ -113,9 +90,9 @@ class Interpolable:
         Returns:
             float: interpolated f(x)
         """
-        self.__validate_in_range__(x)
-        return float(np.interp(x, self.__xp__, self.__fp__))
-
-    def get_defined_value(self, x: Union[float, int]) -> float:
-        self.__validate_in_range__(x)
-        return self.interp(self.__get_nearest_x__(x))
+        if x not in self:
+            raise KeyError(f"key should be in range {self.min_x} - {self.max_x}")
+        point = self.intersection(LineString([(x, self.min_y), (x, self.max_y)]))
+        if not isinstance(point, Point):
+            raise KeyError("unable to get f(x) due internal error")
+        return point.y

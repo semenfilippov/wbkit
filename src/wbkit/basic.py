@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from shapely.geometry import Point
+
 
 @dataclass(frozen=True, eq=True)
 class IndexConstants:
@@ -29,7 +31,7 @@ negative index figures
             raise ValueError("K constant should not be negative")
 
 
-class Index:
+class Index(Point):
     """Moment index representation."""
 
     def __init__(self, idx: float, weight: int, rck: IndexConstants) -> None:
@@ -42,13 +44,20 @@ class Index:
         """
         if weight < 0:
             raise ValueError("weight should not be negative")
-        self.value = idx
-        self.weight = weight
+        super().__init__(weight, idx)
         self.rck = rck
 
     @staticmethod
     def from_moment(moment: float, weight: int, rck: IndexConstants):
         return Index(moment / rck.c + rck.k, weight, rck)
+
+    @property
+    def weight(self):
+        return self.x
+
+    @property
+    def idx(self):
+        return self.y
 
     @property
     def moment(self) -> float:
@@ -57,7 +66,7 @@ class Index:
         Returns:
             float: moment
         """
-        return (self.value - self.rck.k) * self.rck.c
+        return (self.idx - self.rck.k) * self.rck.c
 
     @staticmethod
     def calc(weight: int, station: float, rck: IndexConstants):
@@ -119,17 +128,17 @@ class Index:
     def __add__(self, other):
         self.__validate_calc_ops__(other)
         sum_weights = self.weight + other.weight
-        sum_idxs = self.value + other.value
+        sum_idxs = self.idx + other.idx
         return Index(sum_idxs, sum_weights, self.rck)
 
     def __sub__(self, other):
         self.__validate_calc_ops__(other)
         sum_weights = self.weight - other.weight
-        sum_idxs = self.value - other.value
+        sum_idxs = self.idx - other.idx
         return Index(sum_idxs, sum_weights, self.rck)
 
     def __mul__(self, other):
-        return Index(self.value * other, self.weight * other, self.rck)
+        return Index(self.idx * other, self.weight * other, self.rck)
 
     def __eq__(self, other) -> bool:
         self.__validate_compare_ops__(other)

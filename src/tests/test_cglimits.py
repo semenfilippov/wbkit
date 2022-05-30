@@ -1,124 +1,116 @@
-from typing import List
-
 import pytest
 from wbkit.basic import Index, IndexConstants
-from wbkit.cglimits import LimitLine, CGLimits
+from wbkit.cglimits import CGLimits
+from wbkit.interpolables import Interpolable
 
 
 @pytest.fixture
-def ref_st() -> float:
-    return 13.2
+def rck() -> IndexConstants:
+    return IndexConstants(13.2, 280, 50)
 
 
 @pytest.fixture
-def c() -> int:
-    return 280
-
-
-@pytest.fixture
-def k() -> int:
-    return 50
-
-
-@pytest.fixture
-def rck(ref_st: float, c: int, k: int) -> IndexConstants:
-    return IndexConstants(ref_st, c, k)
-
-
-@pytest.fixture
-def idx_list(rck: IndexConstants) -> List[Index]:
-    return [Index(x, 13500 + n * 1000, rck) for n, x in enumerate(range(20, 70, 10))]
-
-
-@pytest.fixture
-def ll(idx_list: List[Index]) -> LimitLine:
-    return LimitLine.from_idxs(idx_list)
-
-
-@pytest.fixture(
-    params=[(True, False, False), (False, True, False), (False, False, True)]
-)
-def invalid_idx_list(request, idx_list, ref_st: float, c: int, k: int) -> List[Index]:
-    return idx_list + [
-        Index(
-            70,
-            24000,
-            IndexConstants(
-                999 if request.param[0] else ref_st,
-                999 if request.param[1] else c,
-                999 if request.param[2] else k,
-            ),
-        )
-    ]
-
-
-@pytest.fixture
-def fwd_line(rck) -> LimitLine:
-    points = {
+def fwd_dict() -> dict:
+    return {
         13608: 34.45,
         14515: 33.22,
         15190: 30.14,
         19958: 22.82,
     }
-    return LimitLine([(x[0], x[1]) for x in points.items()], rck)
 
 
 @pytest.fixture
-def aft_line(rck) -> LimitLine:
-    points = {
+def aft_dict() -> dict:
+    return {
         13608: 57.31,
         15422: 58.28,
         16329: 63.19,
         19958: 66.12,
     }
-    return LimitLine([(x[0], x[1]) for x in points.items()], rck)
 
 
 @pytest.fixture
-def intersecting_lines(rck) -> List[LimitLine]:
-    return [
-        LimitLine([(0, 0), (10, 10)], rck),
-        LimitLine([(10, 0), (0, 10)], rck),
-    ]
+def fwd_line(fwd_dict) -> Interpolable:
+    return Interpolable([(x, y) for x, y in fwd_dict.items()])
 
 
 @pytest.fixture
-def valid_idx(rck) -> Index:
-    return Index(50, 14500, rck)
+def aft_line(aft_dict) -> Interpolable:
+    return Interpolable([(x, y) for x, y in aft_dict.items()])
 
 
 @pytest.fixture
-def violates_fwd_idx(rck) -> Index:
+def cglimits(fwd_line, aft_line) -> CGLimits:
+    return CGLimits(fwd_line, aft_line)
+
+
+@pytest.fixture(params=["short_min", "short_max"])
+def invalid_fwd_line(request, fwd_dict) -> Interpolable:
+    if request.param == "short_min":
+        _, *rest_t = fwd_dict.items()
+        rest = dict(rest_t)
+        return Interpolable([(x, y) for x, y in rest.items()])
+    elif request.param == "short_max":
+        *rest_t, _ = fwd_dict.items()
+        rest = dict(rest_t)
+        return Interpolable([(x, y) for x, y in rest.items()])
+    else:
+        raise ValueError("invalid_fwd_line internal fault")
+
+
+@pytest.fixture(params=["short_min", "short_max"])
+def invalid_aft_line(request, aft_dict) -> Interpolable:
+    if request.param == "short_min":
+        _, *rest_t = aft_dict.items()
+        rest = dict(rest_t)
+        return Interpolable([(x, y) for x, y in rest.items()])
+    elif request.param == "short_max":
+        *rest_t, _ = aft_dict.items()
+        rest = dict(rest_t)
+        return Interpolable([(x, y) for x, y in rest.items()])
+    else:
+        raise ValueError("invalid_aft_line internal fault")
+
+
+@pytest.fixture
+def good_idx(rck) -> Index:
+    return Index(29.84, 17841, rck)
+
+
+@pytest.fixture
+def bad_fwd_idx(rck) -> Index:
     return Index(33, 14500, rck)
 
 
 @pytest.fixture
-def violates_aft_idx(rck) -> Index:
-    return Index(60, 15500, rck)
+def bad_aft_idx(rck) -> Index:
+    return Index(59, 15400, rck)
 
 
-@pytest.fixture
-def cglimits(rck, fwd_line, aft_line) -> CGLimits:
-    cglimits = CGLimits(rck, [("Zero Fuel", fwd_line, aft_line)])
-    return cglimits
+class TestCGLimits:
+    def test_diff_fwd(self, invalid_fwd_line, aft_line):
+        with pytest.raises(
+            ValueError,
+            match="fwd_line and aft_line min and max weights should be equal",
+        ):
+            CGLimits(invalid_fwd_line, aft_line)
 
+    def test_diff_aft(self, fwd_line, invalid_aft_line):
+        with pytest.raises(
+            ValueError,
+            match="fwd_line and aft_line min and max weights should be equal",
+        ):
+            CGLimits(fwd_line, invalid_aft_line)
 
-class TestLimitLine:
-    @staticmethod
-    def test_init(rck: IndexConstants):
-        ll = LimitLine([(1, 2), (2, 3)], rck)
-        assert ll.rck == rck
+    def test_wrong_order(self, fwd_line, aft_line):
+        with pytest.raises(ValueError, match="make sure order of lines is fwd, aft"):
+            CGLimits(aft_line, fwd_line)
 
-    @staticmethod
-    def test_from_idxs(idx_list: List[Index], rck: IndexConstants):
-        ll = LimitLine.from_idxs(idx_list)
-        assert ll.rck == rck
+    def test_good_idx(self, cglimits, good_idx):
+        assert good_idx in cglimits
 
-    @staticmethod
-    def test_invalid_idx_seq_raises(invalid_idx_list: List[Index]):
-        with pytest.raises(ValueError):
-            LimitLine.from_idxs(invalid_idx_list)
+    def test_bad_fwd_idx(self, cglimits, bad_fwd_idx):
+        assert bad_fwd_idx not in cglimits
 
-    @staticmethod
-    def test_get_limit_idx(ll: LimitLine, rck):
-        assert ll.get_limit_idx(13500) == Index(20, 13500, rck)
+    def test_bad_aft_idx(self, cglimits, bad_aft_idx):
+        assert bad_aft_idx not in cglimits

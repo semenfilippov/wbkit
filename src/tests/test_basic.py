@@ -75,7 +75,7 @@ class TestIndex:
     @staticmethod
     def test_init(rck):
         idx = Index(50, 14500, rck)
-        assert idx.value == 50
+        assert idx.idx == 50
         assert idx.weight == 14500
         assert idx.rck == rck
 
@@ -87,7 +87,7 @@ class TestIndex:
     @staticmethod
     def test_from_moment():
         idx = Index.from_moment(10, 10, IndexConstants(0, 2, 10))
-        assert idx.value == 15
+        assert idx.idx == 15
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -100,7 +100,7 @@ class TestIndex:
     @staticmethod
     def test_calc():
         idx = Index.calc(100, 10, IndexConstants(0, 2, 50))
-        assert idx.value == 550
+        assert idx.idx == 550
         assert idx.moment == 1000
 
     @staticmethod
@@ -142,7 +142,7 @@ class TestIndex:
         a = Index(5, 20, IndexConstants(10, 1, 0))
         b = Index(2, 30, IndexConstants(10, 1, 0))
         c = a + b
-        assert c.value == a.value + b.value
+        assert c.idx == a.idx + b.idx
         assert c.weight == a.weight + b.weight
 
     @staticmethod
@@ -150,7 +150,7 @@ class TestIndex:
         a = Index(5, 40, IndexConstants(10, 1, 0))
         b = Index(2, 30, IndexConstants(10, 1, 0))
         c = a - b
-        assert c.value == a.value - b.value
+        assert c.idx == a.idx - b.idx
         assert c.weight == a.weight - b.weight
 
     @staticmethod
@@ -281,6 +281,6 @@ class TestPercentMAC:
         pctmac = PercentMAC(pctmac_value, lemac_at, macrc_length)
         exp_idx = Index(idx_value, weight, rck)
         idx = pctmac.to_idx(weight, rck)
-        assert idx.value == pytest.approx(exp_idx.value, 1e-3)
+        assert idx.idx == pytest.approx(exp_idx.idx, 1e-3)
         assert idx.weight == exp_idx.weight
         assert idx.rck == exp_idx.rck
