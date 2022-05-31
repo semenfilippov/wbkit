@@ -91,7 +91,7 @@ class Interpolable(LineString):
             float: interpolated f(x)
         """
         if x not in self:
-            raise KeyError(f"key should be in range {self.min_x} - {self.max_x}")
+            raise KeyError(f"x should be in range {self.min_x} - {self.max_x}")
         point = self.intersection(LineString([(x, self.min_y), (x, self.max_y)]))
         if not isinstance(point, Point):
             raise KeyError("unable to get f(x) due internal error")
