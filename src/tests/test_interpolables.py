@@ -8,8 +8,9 @@ def interpolable() -> Interpolable:
 
 
 @pytest.fixture
-def x():
-    pass
+def x_interp(interpolable):
+    for x in range(20, 31):
+        return (interpolable, x / 10, x)
 
 
 class TestInterpolable:
@@ -21,11 +22,10 @@ class TestInterpolable:
         with pytest.raises(ValueError, match="duplicate x values are not allowed"):
             Interpolable([(1, 10), (1, 20)])
 
-    @staticmethod
     @pytest.mark.parametrize(
         ["points"], [([("a", 2), (10, 20)],), ([(1, 2), ("a", 20)],)]
     )
-    def test_mistype_raises(points):
+    def test_mistype_raises(self, points):
         with pytest.raises(TypeError):
             Interpolable(points)
 
@@ -47,8 +47,10 @@ class TestInterpolable:
     def test_gt_not_in_range(self, interpolable):
         assert 4 not in interpolable
 
-    def test_interpolate(self, interpolable: Interpolable, x):
-        pass  # TODO: IMPLEMENT THIS!
+    @pytest.mark.parametrize("x_interp", "x_interp", indirect=True)
+    def test_interpolate(self, x_interp):
+        ip, x, exp = x_interp
+        assert ip[x] == exp
 
-    def test_get_defined():
+    def test_get_defined(self):
         pass  # TODO: IMPLEMENT THIS!

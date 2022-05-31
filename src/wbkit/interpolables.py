@@ -3,8 +3,10 @@ from typing import Optional, Sequence, Tuple, Union
 
 from shapely.geometry import LineString, Point
 
+from wbkit.geometry import WBLineString
 
-class Interpolable(LineString):
+
+class Interpolable(WBLineString):
     def __init__(
         self, points: Sequence[Tuple[Union[int, float], Union[int, float]]]
     ) -> None:
@@ -20,43 +22,7 @@ class Interpolable(LineString):
         """
         if not len(points) == len({x[0] for x in points}):
             raise ValueError("duplicate x values are not allowed")
-        super().__init__(sorted(points, key=lambda x: x[0]))
-
-    @property
-    def min_x(self) -> Union[int, float]:
-        """Get minumum x value of defined x range.
-
-        Returns:
-            int: min(xp)
-        """
-        return self.bounds[0]
-
-    @property
-    def max_x(self) -> Union[int, float]:
-        """Get maximum x value of defined x range.
-
-        Returns:
-            int: max(xp)
-        """
-        return self.bounds[2]
-
-    @property
-    def min_y(self) -> Union[int, float]:
-        """Get minumum defined f(x).
-
-        Returns:
-            int: min(fp)
-        """
-        return self.bounds[1]
-
-    @property
-    def max_y(self) -> Union[int, float]:
-        """Get maximum defined f(x).
-
-        Returns:
-            int: max(fp)
-        """
-        return self.bounds[3]
+        super().__init__(LineString(sorted(points, key=lambda x: x[0])))
 
     @property
     def __xp__(self):
@@ -92,7 +58,8 @@ class Interpolable(LineString):
         """
         if x not in self:
             raise KeyError(f"x should be in range {self.min_x} - {self.max_x}")
-        point = self.intersection(LineString([(x, self.min_y), (x, self.max_y)]))
+        xline = LineString([(x, self.min_y), (x, self.max_y)])
+        point = self.intersection(xline)
         if not isinstance(point, Point):
             raise KeyError("unable to get f(x) due internal error")
         return point.y

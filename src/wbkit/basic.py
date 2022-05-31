@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 from shapely.geometry import Point
 
+from wbkit.geometry import WBPoint
+
 
 @dataclass(frozen=True, eq=True)
 class IndexConstants:
@@ -31,7 +33,7 @@ negative index figures
             raise ValueError("K constant should not be negative")
 
 
-class Index(Point):
+class Index(WBPoint):
     """Moment index representation."""
 
     def __init__(self, idx: float, weight: int, rck: IndexConstants) -> None:
@@ -44,7 +46,7 @@ class Index(Point):
         """
         if weight < 0:
             raise ValueError("weight should not be negative")
-        super().__init__(weight, idx)
+        super().__init__(Point(weight, idx))
         self.rck = rck
 
     @staticmethod
