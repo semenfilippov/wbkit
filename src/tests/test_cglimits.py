@@ -1,12 +1,7 @@
 import pytest
-from wbkit.basic import Index, IndexConstants
+from wbkit.basic import Index
 from wbkit.cglimits import CGLimits
 from wbkit.interpolables import Interpolable
-
-
-@pytest.fixture
-def rck() -> IndexConstants:
-    return IndexConstants(13.2, 280, 50)
 
 
 @pytest.fixture
@@ -87,30 +82,34 @@ def bad_aft_idx(rck) -> Index:
     return Index(59, 15400, rck)
 
 
-class TestCGLimits:
-    def test_diff_fwd(self, invalid_fwd_line, aft_line):
-        with pytest.raises(
-            ValueError,
-            match="fwd_line and aft_line min and max weights should be equal",
-        ):
-            CGLimits(invalid_fwd_line, aft_line)
+def test_diff_fwd(invalid_fwd_line, aft_line):
+    with pytest.raises(
+        ValueError,
+        match="fwd_line and aft_line min and max weights should be equal",
+    ):
+        CGLimits(invalid_fwd_line, aft_line)
 
-    def test_diff_aft(self, fwd_line, invalid_aft_line):
-        with pytest.raises(
-            ValueError,
-            match="fwd_line and aft_line min and max weights should be equal",
-        ):
-            CGLimits(fwd_line, invalid_aft_line)
 
-    def test_wrong_order(self, fwd_line, aft_line):
-        with pytest.raises(ValueError, match="make sure order of lines is fwd, aft"):
-            CGLimits(aft_line, fwd_line)
+def test_diff_aft(fwd_line, invalid_aft_line):
+    with pytest.raises(
+        ValueError,
+        match="fwd_line and aft_line min and max weights should be equal",
+    ):
+        CGLimits(fwd_line, invalid_aft_line)
 
-    def test_good_idx(self, cglimits, good_idx):
-        assert good_idx in cglimits
 
-    def test_bad_fwd_idx(self, cglimits, bad_fwd_idx):
-        assert bad_fwd_idx not in cglimits
+def test_wrong_order(fwd_line, aft_line):
+    with pytest.raises(ValueError, match="make sure order of lines is fwd, aft"):
+        CGLimits(aft_line, fwd_line)
 
-    def test_bad_aft_idx(self, cglimits, bad_aft_idx):
-        assert bad_aft_idx not in cglimits
+
+def test_good_idx(cglimits, good_idx):
+    assert good_idx in cglimits
+
+
+def test_bad_fwd_idx(cglimits, bad_fwd_idx):
+    assert bad_fwd_idx not in cglimits
+
+
+def test_bad_aft_idx(cglimits, bad_aft_idx):
+    assert bad_aft_idx not in cglimits

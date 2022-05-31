@@ -94,7 +94,7 @@ class Index(WBPoint):
 
     def __validate_calc_ops__(self, other):
         """Internal Index object validator.
-        Validate if two Index objects can be added or substracted.
+        Validate if two Index objects can be added or subtracted.
         It is only possible when their `rck` attributes are equal.
 
         Args:
@@ -113,7 +113,7 @@ class Index(WBPoint):
 
     def __validate_compare_ops__(self, other):
         """Internal Index object validator.
-        Validate if two Index objects can compared.
+        Validate if two Index objects can be compared.
         It is only possible when their `ref_st` attributes are equal.
 
         Args:
@@ -164,7 +164,7 @@ class Index(WBPoint):
 
 
 class IndexInfluence:
-    """Index influence representation. Basically a convinience class."""
+    """Index influence representation. Basically a convenience class."""
 
     def __init__(self, influence: float, rck: IndexConstants) -> None:
         """Create new IndexInfluence object.
