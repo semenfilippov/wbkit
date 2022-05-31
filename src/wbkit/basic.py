@@ -142,6 +142,9 @@ class Index(WBPoint):
     def __mul__(self, other):
         return Index(self.idx * other, self.weight * other, self.rck)
 
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
     def __eq__(self, other) -> bool:
         self.__validate_compare_ops__(other)
         return self.moment == other.moment
@@ -177,6 +180,9 @@ class IndexInfluence:
 
     def __mul__(self, other) -> Index:
         return self.__influence__ * other
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
 
     def get_idx(self, for_weight: int) -> Index:
         """Get Index object for given weight.

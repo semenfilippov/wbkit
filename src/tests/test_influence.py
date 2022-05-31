@@ -15,5 +15,9 @@ def test_mul(idx_infl: IndexInfluence, rck):
     assert idx_infl * 10 == Index(-10, 10, rck)
 
 
+def test_rmul(idx_infl: IndexInfluence, rck):
+    assert 10 * idx_infl == Index(-10, 10, rck)
+
+
 def test_get_idx(idx_infl: IndexInfluence, rck):
     assert idx_infl.get_idx(10) == Index(-10, 10, rck)

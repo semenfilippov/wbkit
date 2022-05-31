@@ -88,6 +88,11 @@ def test_mul(rck: IndexConstants):
     assert idx * 10 == Index(-10, 10, rck)
 
 
+def test_rmul(rck: IndexConstants):
+    idx = Index(-1, 1, rck)
+    assert 10 * idx == Index(-10, 10, rck)
+
+
 def test_eq(rck):
     a = Index(5, 20, rck)
     b = Index(5, 20, rck)
