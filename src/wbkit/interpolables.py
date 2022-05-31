@@ -18,9 +18,9 @@ class Interpolable(LineString):
             ValueError: if len(points) < 2
             ValueError: if points contain duplicate values for x
         """
-        super().__init__(sorted(points, key=lambda x: x[0]))
-        if not len(self.coords) == len({x[0] for x in self.coords}):
+        if not len(points) == len({x[0] for x in points}):
             raise ValueError("duplicate x values are not allowed")
+        super().__init__(sorted(points, key=lambda x: x[0]))
 
     @property
     def min_x(self) -> Union[int, float]:
