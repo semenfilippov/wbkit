@@ -13,10 +13,10 @@ class CGLimits(Polygon):
             raise ValueError(
                 "fwd_line and aft_line min and max weights should be equal"
             )
-        if fwd_line.max_y > aft_line.min_y:
-            raise ValueError("make sure order of lines is fwd, aft")
         if fwd_line.intersects(aft_line):
             raise ValueError("fwd_line and aft_line should not intersect")
+        if fwd_line.min_y > aft_line.min_y and fwd_line.max_y > aft_line.max_y:
+            raise ValueError("make sure order of lines is fwd, aft")
         fwd_points = fwd_line.coords
         aft_points = reversed(aft_line.coords)
         super().__init__((*fwd_points, *aft_points))
