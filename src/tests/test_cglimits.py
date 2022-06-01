@@ -9,11 +9,11 @@ def invalid_fwd_line(request, fwd_zfw_dict) -> Interpolable:
     if request.param == "short_min":
         _, *rest_t = fwd_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable(*rest.items())
+        return Interpolable([*rest.items()])
     elif request.param == "short_max":
         *rest_t, _ = fwd_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable(*rest.items())
+        return Interpolable([*rest.items()])
     else:
         raise ValueError("invalid_fwd_line internal fault")
 
@@ -23,11 +23,11 @@ def invalid_aft_line(request, aft_zfw_dict) -> Interpolable:
     if request.param == "short_min":
         _, *rest_t = aft_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable(*rest.items())
+        return Interpolable([*rest.items()])
     elif request.param == "short_max":
         *rest_t, _ = aft_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable(*rest.items())
+        return Interpolable([*rest.items()])
     else:
         raise ValueError("invalid_aft_line internal fault")
 

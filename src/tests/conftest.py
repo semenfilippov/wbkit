@@ -42,7 +42,7 @@ def lemac_at() -> float:
 
 
 def stab() -> Interpolable:
-    return Interpolable((8.8, 8.15), (35, 4))
+    return Interpolable([(8.8, 8.15), (35, 4)])
 
 
 # FUEL
@@ -85,7 +85,7 @@ def fuel() -> Interpolable:
         6400: -17.28,
         6488: -17.91,
     }
-    return Interpolable(*fuel_dict.items())
+    return Interpolable([*fuel_dict.items()])
 
 
 # CG LIMITS
@@ -114,12 +114,12 @@ def aft_zfw_dict() -> dict:
 
 @pytest.fixture
 def zfw_fwd_line(fwd_zfw_dict) -> Interpolable:
-    return Interpolable(*fwd_zfw_dict.items())
+    return Interpolable([*fwd_zfw_dict.items()])
 
 
 @pytest.fixture
 def zfw_aft_line(aft_zfw_dict) -> Interpolable:
-    return Interpolable(*aft_zfw_dict.items())
+    return Interpolable([*aft_zfw_dict.items()])
 
 
 @pytest.fixture
@@ -139,7 +139,7 @@ def tow_fwd_line() -> Interpolable:
         23133: 14.47,
         24040: 13.08,
     }
-    return Interpolable(*tow_fwd.items())
+    return Interpolable([*tow_fwd.items()])
 
 
 @pytest.fixture
@@ -152,7 +152,7 @@ def tow_aft_line() -> Interpolable:
         23521: 68.99,
         24040: 49.89,
     }
-    return Interpolable(*tow_aft.items())
+    return Interpolable([*tow_aft.items()])
 
 
 @pytest.fixture
@@ -172,7 +172,7 @@ def infl_fwd_line() -> Interpolable:
         23133: 10.25,
         24040: 8.69,
     }
-    return Interpolable(*infl_fwd.items())
+    return Interpolable([*infl_fwd.items()])
 
 
 @pytest.fixture
@@ -185,7 +185,7 @@ def infl_aft_line() -> Interpolable:
         23406: 73.12,
         24040: 49.89,
     }
-    return Interpolable(*infl_aft.items())
+    return Interpolable([*infl_aft.items()])
 
 
 @pytest.fixture
@@ -204,7 +204,7 @@ def ldg_fwd_line():
         16329: 24.92,
         21319: 17.21,
     }
-    return Interpolable(*ldg_fwd.items())
+    return Interpolable([*ldg_fwd.items()])
 
 
 @pytest.fixture
@@ -215,7 +215,7 @@ def ldg_aft_line():
         16329: 63.19,
         21319: 67.22,
     }
-    return Interpolable(*ldg_aft.items())
+    return Interpolable([*ldg_aft.items()])
 
 
 @pytest.fixture
