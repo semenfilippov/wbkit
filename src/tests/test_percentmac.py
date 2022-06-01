@@ -1,5 +1,5 @@
 import pytest
-from wbkit.basic import Index, IndexConstants, PercentMAC
+from wbkit.basic import Index, WBConstants, PercentMAC
 
 
 def test_init(lemac_at: float, macrc_length: float):
@@ -31,7 +31,7 @@ def test_from_idx(
     idx_value: float,
     weight: int,
     pctmac_value: float,
-    rck: IndexConstants,
+    rck: WBConstants,
     lemac_at: float,
     macrc_length: float,
 ):
@@ -62,7 +62,7 @@ def test_to_idx(
     idx_value: float,
     weight: int,
     pctmac_value: float,
-    rck: IndexConstants,
+    rck: WBConstants,
     lemac_at: float,
     macrc_length: float,
 ):

@@ -6,16 +6,20 @@ from wbkit.geometry import WBPoint
 
 
 @dataclass(frozen=True, eq=True)
-class IndexConstants:
+class WBConstants:
     """Dataclass for Index constants.
 
     Args:
-        ref_st (float): Reference station/axis. Selected station \
-around which all index values are calculated
-        c (int): Constant used as a denominator to convert \
-moment values into index values
-        k (int): Constant used as a plus value to avoid \
-negative index figures
+        ref_st (float): Reference station/axis. Selected station
+        around which all index values are calculated
+        c (int): Constant used as a denominator to convert
+        moment values into index values
+        k (int): Constant used as a plus value to avoid
+        negative index figures
+        lemac_at (float): Horizontal distance in length units
+        from the station zero to location of the Leading Edge of the MAC / RC
+        macrc_length (float): Length of
+        Mean Aerodynamic Chord / Reference Chord in length units
 
     Raises:
         ValueError: if not C > 0
@@ -25,6 +29,8 @@ negative index figures
     ref_st: float
     c: int
     k: int
+    lemac_at: float
+    macrc_length: float
 
     def __post_init__(self):
         if not self.c > 0:
@@ -36,13 +42,13 @@ negative index figures
 class Index(WBPoint):
     """Moment index representation."""
 
-    def __init__(self, idx: float, weight: int, rck: IndexConstants) -> None:
+    def __init__(self, idx: float, weight: int, rck: WBConstants) -> None:
         """Create new Index object.
 
         Args:
             idx (float): Index value
             weight (int): Corresponding weight
-            rck (IndexConstants): IndexConstants object
+            rck (WBConstants): WBConstants object
         """
         if weight < 0:
             raise ValueError("weight should not be negative")
@@ -50,7 +56,7 @@ class Index(WBPoint):
         self.rck = rck
 
     @staticmethod
-    def from_moment(moment: float, weight: int, rck: IndexConstants):
+    def from_moment(moment: float, weight: int, rck: WBConstants):
         return Index(moment / rck.c + rck.k, weight, rck)
 
     @property
@@ -71,14 +77,14 @@ class Index(WBPoint):
         return (self.idx - self.rck.k) * self.rck.c
 
     @staticmethod
-    def calc(weight: int, station: float, rck: IndexConstants):
+    def calc(weight: int, station: float, rck: WBConstants):
         """Calculate index value and return Index object.
 
         Args:
             weight (int): Actual weight
             station (float): Horizontal distance in length units
             from station zero to the location
-            rck (IndexConstants): IndexConstants object
+            rck (WBConstants): WBConstants object
 
         Raises:
             ValueError: if `c` equals to zero
@@ -169,12 +175,12 @@ class Index(WBPoint):
 class IndexInfluence:
     """Index influence representation. Basically a convenience class."""
 
-    def __init__(self, influence: float, rck: IndexConstants) -> None:
+    def __init__(self, influence: float, rck: WBConstants) -> None:
         """Create new IndexInfluence object.
 
         Args:
             influence (float): index influence per 1 weight unit
-            rck (IndexConstants): IndexConstants object
+            rck (WBConstants): WBConstants object
         """
         self.__influence__ = Index(influence, 1, rck)
 
@@ -234,12 +240,12 @@ class PercentMAC:
             macrc_length,
         )
 
-    def to_idx(self, weight: int, rck: IndexConstants):
+    def to_idx(self, weight: int, rck: WBConstants):
         """Convert PercentMAC object to Index object.
 
         Args:
             weight (int): Corresponding weight
-            rck (IndexConstants): IndexConstants object
+            rck (WBConstants): WBConstants object
 
         Returns:
             Index: calculated Index object
