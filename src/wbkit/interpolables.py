@@ -1,5 +1,5 @@
 from bisect import bisect_left
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple
 
 from shapely.geometry import LineString, Point
 
@@ -7,9 +7,7 @@ from wbkit.geometry import WBLineString
 
 
 class Interpolable(WBLineString):
-    def __init__(
-        self, points: Sequence[Tuple[Union[int, float], Union[int, float]]]
-    ) -> None:
+    def __init__(self, points: Sequence[Tuple[float, float]]) -> None:
         """Create Interpolable object.
 
         Args:
@@ -32,10 +30,10 @@ class Interpolable(WBLineString):
     def __fp__(self):
         return tuple(self.xy[1])
 
-    def __contains__(self, x: Union[int, float]) -> bool:
+    def __contains__(self, x: float) -> bool:
         return self.min_x <= x <= self.max_x
 
-    def get_defined_f(self, x: Union[int, float]) -> Optional[float]:
+    def get_defined_f(self, x: float) -> Optional[float]:
         if x not in self:
             raise ValueError(f"x should be in range {self.min_x} - {self.max_x}")
         pos = bisect_left(self.__xp__, x)
@@ -47,7 +45,7 @@ class Interpolable(WBLineString):
         after = self.__xp__[pos]
         return self.__fp__[pos] if x - before >= after - x else self.__fp__[pos - 1]
 
-    def __getitem__(self, x: Union[float, int]) -> float:
+    def __getitem__(self, x: float) -> float:
         """Get f(x).
 
         Args:
