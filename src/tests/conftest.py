@@ -1,43 +1,7 @@
 import pytest
 
-from wbkit.basic import WBConstants
 from wbkit.cglimits import CGLimits
 from wbkit.interpolables import Interpolable
-
-
-# REF_ST, C, K
-
-
-@pytest.fixture(scope="module")
-def ref_st() -> float:
-    return 13.2
-
-
-@pytest.fixture(scope="module")
-def c() -> int:
-    return 280
-
-
-@pytest.fixture(scope="module")
-def k() -> int:
-    return 50
-
-
-@pytest.fixture(scope="module")
-def macrc_length() -> float:
-    return 2.526
-
-
-@pytest.fixture(scope="module")
-def lemac_at() -> float:
-    return 12.542
-
-
-@pytest.fixture
-def rck(
-    ref_st: float, c: int, k: int, macrc_length: float, lemac_at: float
-) -> WBConstants:
-    return WBConstants(ref_st, c, k, macrc_length, lemac_at)
 
 
 # STAB

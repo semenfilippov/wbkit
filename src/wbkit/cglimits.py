@@ -1,8 +1,11 @@
 from shapely.geometry import Polygon
 
-from wbkit.basic import Index
-from wbkit.geometry import WBPolygon
+from wbkit.geometry import WBPoint, WBPolygon
 from wbkit.interpolables import Interpolable
+
+
+class CG(WBPoint):
+    pass
 
 
 class CGLimits(WBPolygon):
@@ -23,5 +26,5 @@ class CGLimits(WBPolygon):
         aft_points = reversed(aft_line.coords)
         super().__init__(Polygon((*fwd_points, *aft_points)))
 
-    def __contains__(self, idx: Index) -> bool:
+    def __contains__(self, idx: CG) -> bool:
         return self.covers(idx)

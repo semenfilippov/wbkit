@@ -1,256 +1,128 @@
-from dataclasses import dataclass
-
-from shapely.geometry import Point
-
-from wbkit.geometry import WBPoint
-
-
-@dataclass(frozen=True, eq=True)
-class WBConstants:
-    """Dataclass for Index constants.
-
-    Args:
-        ref_st (float): Reference station/axis. Selected station
-        around which all index values are calculated
-        c (int): Constant used as a denominator to convert
-        moment values into index values
-        k (int): Constant used as a plus value to avoid
-        negative index figures
-        lemac_at (float): Horizontal distance in length units
-        from the station zero to location of the Leading Edge of the MAC / RC
-        macrc_length (float): Length of
-        Mean Aerodynamic Chord / Reference Chord in length units
-
-    Raises:
-        ValueError: if not C > 0
-        ValueError: if K < 0
-    """
-
-    ref_st: float
-    c: int
-    k: int
-    lemac_at: float
-    macrc_length: float
-
-    def __post_init__(self):
-        if not self.c > 0:
-            raise ValueError("C constant should be greater than 0")
-        if self.k < 0:
-            raise ValueError("K constant should not be negative")
-
-
-class Index(WBPoint):
-    """Moment index representation."""
-
-    def __init__(self, idx: float, weight: int, rck: WBConstants) -> None:
-        """Create new Index object.
+class WBCalculator:
+    def __init__(
+        self, ref_st: float, c: int, k: int, macrc: float, lemac_at: float
+    ) -> None:
+        """Create new WBCalculator object.
 
         Args:
-            idx (float): Index value
-            weight (int): Corresponding weight
-            rck (WBConstants): WBConstants object
+            ref_st (float): Reference station/axis. Selected station
+            around which all index values are calculated.
+            c (int): Constant used as a denominator to convert
+            moment values into index values.
+            k (int): Constant used as a plus value to avoid
+            negative index figures.
+            lemac_at (float): Horizontal distance in length units
+            from the station zero to location of the Leading Edge of the MAC / RC
+            macrc_length (float): Length of
+            Mean Aerodynamic Chord / Reference Chord in length units.
+
+        Raises:
+            ValueError: if C constant is not > 0
+            ValueError: if K constant is < 0
+            ValueError: if MAC/RC length not > 0
         """
-        if weight < 0:
-            raise ValueError("weight should not be negative")
-        super().__init__(Point(weight, idx))
-        self.rck = rck
+        if not c > 0:
+            raise ValueError("C constant must be > 0")
+        if k < 0:
+            raise ValueError("K constant must not be negative")
+        if not macrc > 0:
+            raise ValueError("MAC/RC must be > 0")
+        self.ref_st = ref_st
+        self.c = c
+        self.k = k
+        self.macrc = macrc
+        self.lemac_at = lemac_at
 
-    @staticmethod
-    def from_moment(moment: float, weight: int, rck: WBConstants):
-        return Index(moment / rck.c + rck.k, weight, rck)
+    def to_idx(self, moment: float) -> float:
+        """Convert moment to index.
 
-    @property
-    def weight(self):
-        return self.x
+        Args:
+            moment (float): moment
 
-    @property
-    def idx(self):
-        return self.y
+        Returns:
+            float: index
+        """
+        return moment / self.c + self.k
 
-    @property
-    def moment(self) -> float:
-        """Get moment value.
+    def to_moment(self, idx: float) -> float:
+        """Convert index to moment.
+
+        Args:
+            idx (float): index
+
+        Returns:
+            float: index
+        """
+        return self.c * (idx - self.k)
+
+    def calc_moment(self, weight: int, station: float) -> float:
+        """Calculate moment for given weight and station.
+
+        Args:
+            weight (int): weight
+            station (float): station
 
         Returns:
             float: moment
         """
-        return (self.idx - self.rck.k) * self.rck.c
+        return weight * (station - self.ref_st)
 
-    @staticmethod
-    def calc(weight: int, station: float, rck: WBConstants):
-        """Calculate index value and return Index object.
+    def calc_idx(self, weight: int, station: float) -> float:
+        """Calculate index for given weight and station.
 
         Args:
-            weight (int): Actual weight
-            station (float): Horizontal distance in length units
-            from station zero to the location
-            rck (WBConstants): WBConstants object
-
-        Raises:
-            ValueError: if `c` equals to zero
+            weight (int): weight
+            station (float): station
 
         Returns:
-            Index: calculated Index object
+            float: index
         """
-        try:
-            idx = (weight * (station - rck.ref_st)) / rck.c + rck.k
-        except ZeroDivisionError:
-            raise ValueError("C constant cannot be equal to 0")
-        return Index(idx, weight, rck)
+        return self.to_idx(self.calc_moment(weight, station))
 
-    def __validate_calc_ops__(self, other):
-        """Internal Index object validator.
-        Validate if two Index objects can be added or subtracted.
-        It is only possible when their `rck` attributes are equal.
+    def mac_from_moment(self, moment: float, weight: int) -> float:
+        """Get %MAC for given moment and weight.
 
         Args:
-            other (Index): Index object
-
-        Raises:
-            ValueError: if rck attributes are not equal
-        """
-        if self.rck == other.rck:
-            return
-
-        raise ValueError(
-            "Calculations for Index operands with different "
-            "reference stations, C or K constants are not allowed."
-        )
-
-    def __validate_compare_ops__(self, other):
-        """Internal Index object validator.
-        Validate if two Index objects can be compared.
-        It is only possible when their `ref_st` attributes are equal.
-
-        Args:
-            other (Index): Index object
-
-        Raises:
-            ValueError: if `ref_st` attributes are not equal
-        """
-        if not self.rck.ref_st == other.rck.ref_st:
-            raise ValueError(
-                "Cannot compare Index instances with different reference stations."
-            )
-
-    def __add__(self, other):
-        self.__validate_calc_ops__(other)
-        sum_weights = self.weight + other.weight
-        sum_idxs = self.idx + other.idx
-        return Index(sum_idxs, sum_weights, self.rck)
-
-    def __sub__(self, other):
-        self.__validate_calc_ops__(other)
-        sum_weights = self.weight - other.weight
-        sum_idxs = self.idx - other.idx
-        return Index(sum_idxs, sum_weights, self.rck)
-
-    def __mul__(self, other):
-        return Index(self.idx * other, self.weight * other, self.rck)
-
-    def __rmul__(self, other):
-        return self.__mul__(other)
-
-    def __eq__(self, other) -> bool:
-        self.__validate_compare_ops__(other)
-        return self.moment == other.moment
-
-    def __gt__(self, other) -> bool:
-        self.__validate_compare_ops__(other)
-        return self.moment > other.moment
-
-    def __lt__(self, other) -> bool:
-        self.__validate_compare_ops__(other)
-        return self.moment < other.moment
-
-    def __ge__(self, other) -> bool:
-        self.__validate_compare_ops__(other)
-        return self > other or self == other
-
-    def __le__(self, other) -> bool:
-        self.__validate_compare_ops__(other)
-        return self < other or self == other
-
-
-class IndexInfluence:
-    """Index influence representation. Basically a convenience class."""
-
-    def __init__(self, influence: float, rck: WBConstants) -> None:
-        """Create new IndexInfluence object.
-
-        Args:
-            influence (float): index influence per 1 weight unit
-            rck (WBConstants): WBConstants object
-        """
-        self.__influence__ = Index(influence, 1, rck)
-
-    def __mul__(self, other) -> Index:
-        return self.__influence__ * other
-
-    def __rmul__(self, other):
-        return self.__mul__(other)
-
-    def get_idx(self, for_weight: int) -> Index:
-        """Get Index object for given weight.
-
-        Args:
-            for_weight (int): corresponding weight
+            moment (float): moment
+            weight (int): weight
 
         Returns:
-            Index: influence multiplied by weight
+            float: %MAC
         """
-        return self * for_weight
+        return (moment / weight + self.ref_st - self.lemac_at) / (self.macrc / 100)
 
-
-class PercentMAC:
-    """%MAC representation."""
-
-    def __init__(self, value: float, lemac_at: float, macrc_length: float) -> None:
-        """Create new PercentMAC object.
+    def mac_to_moment(self, mac: float, weight: int) -> float:
+        """Get moment for given %MAC and weight.
 
         Args:
-            value (float): %MAC value
-            lemac_at (float): Horizontal distance in length units
-            from the station zero to location of the Leading Edge of the MAC / RC
-            macrc_length (float): Length of
-            Mean Aerodynamic Chord / Reference Chord in length units
-        """
-        self.value = value
-        self.lemac_at = lemac_at
-        self.macrc_length = macrc_length
-
-    @staticmethod
-    def from_idx(idx: Index, lemac_at: float, macrc_length: float):
-        """Create new PercentMAC object using Index object.
-
-        Args:
-            idx (Index): Index object
-            lemac_at (float): Horizontal distance in length units
-            from the station zero to location of the Leading Edge of the MAC / RC
-            macrc_length (float): Length of
-            Mean Aerodynamic Chord / Reference Chord in length units
+            mac (float): %MAC
+            weight (int): weight
 
         Returns:
-            PercentMAC: PercentMAC object derived from Index object
+            float: moment
         """
-        return PercentMAC(
-            ((idx.moment / idx.weight) + idx.rck.ref_st - lemac_at)
-            / (macrc_length / 100),
-            lemac_at,
-            macrc_length,
-        )
+        return ((mac * (self.macrc / 100)) - self.ref_st + self.lemac_at) * weight
 
-    def to_idx(self, weight: int, rck: WBConstants):
-        """Convert PercentMAC object to Index object.
+    def mac_from_idx(self, idx: float, weight: int) -> float:
+        """Get %MAC for given index and weight.
 
         Args:
-            weight (int): Corresponding weight
-            rck (WBConstants): WBConstants object
+            idx (float): index
+            weight (int): weight
 
         Returns:
-            Index: calculated Index object
+            float: %MAC
         """
-        moment = (
-            (self.value * (self.macrc_length / 100)) - rck.ref_st + self.lemac_at
-        ) * weight
-        return Index.from_moment(moment, weight, rck)
+        return self.mac_from_moment(self.to_moment(idx), weight)
+
+    def mac_to_idx(self, mac: float, weight: int) -> float:
+        """Get index for given %MAC and weight.
+
+        Args:
+            mac (float): %MAC
+            weight (int): weight
+
+        Returns:
+            float: index
+        """
+        return self.to_idx(self.mac_to_moment(mac, weight))
