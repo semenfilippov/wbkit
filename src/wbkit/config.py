@@ -85,6 +85,4 @@ class WBConfig(metaclass=WBConfigBase):
 
     @property
     def stab(self) -> Optional[StabRange]:
-        if len(self.stabs) == 1:
-            return next(iter(self.stabs.values()))
-        return None
+        return next(iter(self.stabs.values())) if len(self.stabs) == 1 else None
