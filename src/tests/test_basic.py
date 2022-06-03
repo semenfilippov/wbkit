@@ -47,6 +47,11 @@ def test_mac_from_moment(wbcalc: WBCalculator):
     assert wbcalc.mac_from_moment(100, 20) == 50.0
 
 
+def test_mac_from_moment_zero_weight_raises(wbcalc: WBCalculator):
+    with pytest.raises(ValueError, match="weight must not be equal to 0"):
+        wbcalc.mac_from_moment(100, 0)
+
+
 def test_moment_from_mac(wbcalc: WBCalculator):
     assert wbcalc.mac_to_moment(50.0, 20) == 100
 

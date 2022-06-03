@@ -89,7 +89,10 @@ class WBCalculator:
         Returns:
             float: %MAC
         """
-        return (moment / weight + self.ref_st - self.lemac_at) / (self.macrc / 100)
+        try:
+            return (moment / weight + self.ref_st - self.lemac_at) / (self.macrc / 100)
+        except ZeroDivisionError:
+            raise ValueError("weight must not be equal to 0")
 
     def mac_to_moment(self, mac: float, weight: int) -> float:
         """Get moment for given %MAC and weight.
