@@ -1,32 +1,32 @@
 import pytest
 from wbkit.cglimits import CG, CGLimits
-from wbkit.interpolable import Interpolable
+from wbkit.plfunc import PLFunction
 
 
 @pytest.fixture(params=["short_min", "short_max"])
-def invalid_fwd_line(request, fwd_zfw_dict) -> Interpolable:
+def invalid_fwd_line(request, fwd_zfw_dict) -> PLFunction:
     if request.param == "short_min":
         _, *rest_t = fwd_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable([*rest.items()])
+        return PLFunction([*rest.items()])
     elif request.param == "short_max":
         *rest_t, _ = fwd_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable([*rest.items()])
+        return PLFunction([*rest.items()])
     else:
         raise ValueError("invalid_fwd_line internal fault")
 
 
 @pytest.fixture(params=["short_min", "short_max"])
-def invalid_aft_line(request, aft_zfw_dict) -> Interpolable:
+def invalid_aft_line(request, aft_zfw_dict) -> PLFunction:
     if request.param == "short_min":
         _, *rest_t = aft_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable([*rest.items()])
+        return PLFunction([*rest.items()])
     elif request.param == "short_max":
         *rest_t, _ = aft_zfw_dict.items()
         rest = dict(rest_t)
-        return Interpolable([*rest.items()])
+        return PLFunction([*rest.items()])
     else:
         raise ValueError("invalid_aft_line internal fault")
 

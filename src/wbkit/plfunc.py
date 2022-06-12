@@ -1,52 +1,35 @@
 from __future__ import annotations
 
 from functools import cached_property
-from itertools import tee
-from typing import Iterable, Sequence, Tuple
+from itertools import pairwise
+from typing import Sequence
 
 import numpy as np
 
 
-def _pairwise(iterable: Iterable) -> zip:
-    """
-    >>> _pairwise('ABCDEFG') --> AB BC CD DE EF FG
+class PLFunction:
+    """Representation of piecewise linear function."""
 
-    Taken from https://docs.python.org/3/library/itertools.html#itertools.pairwise
-
-    Args:
-        iterable (Iterable): any iterable
-
-    Returns:
-        zip: zip object
-    """
-    #
-    a, b = tee(iterable)
-    next(b, None)
-    return zip(a, b)
-
-
-class Interpolable:
-    def __init__(self, points: Sequence[Tuple[float, float]]) -> None:
-        """Create Interpolable object.
+    def __init__(self, points: Sequence[tuple[float, float]]) -> None:
+        """Create PLFunction object.
 
         Args:
-            points (Sequence[Tuple[int | float, int | float]]):
+            points (Sequence[tuple[float | float]]):
                 x : f(x) pairs
 
         Raises:
-            ValueError: if len(points) < 2
             ValueError: if points contain duplicate values for x
         """
-        if not len(points) == len({x[0] for x in points}):
+        if len({x[0] for x in points}) < len(points):
             raise ValueError("duplicate x values are not allowed")
         self.points = tuple(sorted(points, key=lambda x: x[0]))
 
     @cached_property
-    def xp(self) -> Tuple[float, ...]:
+    def xp(self) -> tuple[float, ...]:
         return tuple(x[0] for x in self.points)
 
     @cached_property
-    def fp(self) -> Tuple[float, ...]:
+    def fp(self) -> tuple[float, ...]:
         return tuple(x[1] for x in self.points)
 
     @property
@@ -79,6 +62,8 @@ class Interpolable:
         """
         if x not in self:
             raise KeyError(f"x should be in range {self.min_x} - {self.max_x}")
+        if x in self.xp:
+            return self.fp[self.xp.index(x)]
         return float(np.interp(x, self.xp, self.fp))
 
     def defined_f(self, x: float) -> float:
@@ -104,21 +89,21 @@ class Interpolable:
         after = self.xp[pos]
         return self.fp[pos] if x - before >= after - x else self.fp[pos - 1]
 
-    def intersects(self, other: Interpolable) -> bool:
-        """Check if there is an intersection between two interpolable objects.
+    def overlaps(self, other: PLFunction) -> bool:
+        """Check if two piecewise linear function graphs overlap.
 
         Args:
-            other (Interpolable): other Interpolable
+            other (PLFunction): other PLFunction
 
         Returns:
-            bool: True if Interpolables intersect, False otherwise
+            bool: True if PLFunction graphs overlap, False otherwise
         """
         if self.min_x > other.max_x or self.max_x < other.min_x:
             return False
         all_xp = self.xp + other.xp
         common_xp = set(filter(lambda x: x in self and x in other, all_xp))
         sorted_xp = sorted(common_xp)
-        for x1, x2 in _pairwise(sorted_xp):
+        for x1, x2 in pairwise(sorted_xp):
             diff1 = self[x1] - other[x1]
             diff2 = self[x2] - other[x2]
             if diff1 == 0 or diff2 == 0 or diff1 * diff2 < 0:

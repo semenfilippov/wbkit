@@ -1,20 +1,20 @@
 import pytest
 
 from wbkit.cglimits import CGLimits
-from wbkit.interpolable import Interpolable
+from wbkit.plfunc import PLFunction
 
 
 # STAB
 
 
-def stab() -> Interpolable:
-    return Interpolable([(8.8, 8.15), (35, 4)])
+def stab() -> PLFunction:
+    return PLFunction([(8.8, 8.15), (35, 4)])
 
 
 # FUEL
 
 
-def fuel() -> Interpolable:
+def fuel() -> PLFunction:
     fuel_dict = {
         200: -0.83,
         400: -1.56,
@@ -51,7 +51,7 @@ def fuel() -> Interpolable:
         6400: -17.28,
         6488: -17.91,
     }
-    return Interpolable([*fuel_dict.items()])
+    return PLFunction([*fuel_dict.items()])
 
 
 # CG LIMITS
@@ -79,13 +79,13 @@ def aft_zfw_dict() -> dict:
 
 
 @pytest.fixture
-def zfw_fwd_line(fwd_zfw_dict) -> Interpolable:
-    return Interpolable([*fwd_zfw_dict.items()])
+def zfw_fwd_line(fwd_zfw_dict) -> PLFunction:
+    return PLFunction([*fwd_zfw_dict.items()])
 
 
 @pytest.fixture
-def zfw_aft_line(aft_zfw_dict) -> Interpolable:
-    return Interpolable([*aft_zfw_dict.items()])
+def zfw_aft_line(aft_zfw_dict) -> PLFunction:
+    return PLFunction([*aft_zfw_dict.items()])
 
 
 @pytest.fixture
@@ -97,7 +97,7 @@ def zfw_cglimits(zfw_fwd_line, zfw_aft_line) -> CGLimits:
 
 
 @pytest.fixture
-def tow_fwd_line() -> Interpolable:
+def tow_fwd_line() -> PLFunction:
     tow_fwd = {
         13608: 34.45,
         14515: 33.22,
@@ -105,11 +105,11 @@ def tow_fwd_line() -> Interpolable:
         23133: 14.47,
         24040: 13.08,
     }
-    return Interpolable([*tow_fwd.items()])
+    return PLFunction([*tow_fwd.items()])
 
 
 @pytest.fixture
-def tow_aft_line() -> Interpolable:
+def tow_aft_line() -> PLFunction:
     tow_aft = {
         13608: 57.31,
         15422: 58.28,
@@ -118,7 +118,7 @@ def tow_aft_line() -> Interpolable:
         23521: 68.99,
         24040: 49.89,
     }
-    return Interpolable([*tow_aft.items()])
+    return PLFunction([*tow_aft.items()])
 
 
 @pytest.fixture
@@ -130,7 +130,7 @@ def tow_cglimits(tow_fwd_line, tow_aft_line):
 
 
 @pytest.fixture
-def infl_fwd_line() -> Interpolable:
+def infl_fwd_line() -> PLFunction:
     infl_fwd = {
         13608: 31.53,
         15422: 29.06,
@@ -138,11 +138,11 @@ def infl_fwd_line() -> Interpolable:
         23133: 10.25,
         24040: 8.69,
     }
-    return Interpolable([*infl_fwd.items()])
+    return PLFunction([*infl_fwd.items()])
 
 
 @pytest.fixture
-def infl_aft_line() -> Interpolable:
+def infl_aft_line() -> PLFunction:
     infl_aft = {
         13608: 57.31,
         15422: 58.28,
@@ -151,7 +151,7 @@ def infl_aft_line() -> Interpolable:
         23406: 73.12,
         24040: 49.89,
     }
-    return Interpolable([*infl_aft.items()])
+    return PLFunction([*infl_aft.items()])
 
 
 @pytest.fixture
@@ -170,7 +170,7 @@ def ldg_fwd_line():
         16329: 24.92,
         21319: 17.21,
     }
-    return Interpolable([*ldg_fwd.items()])
+    return PLFunction([*ldg_fwd.items()])
 
 
 @pytest.fixture
@@ -181,7 +181,7 @@ def ldg_aft_line():
         16329: 63.19,
         21319: 67.22,
     }
-    return Interpolable([*ldg_aft.items()])
+    return PLFunction([*ldg_aft.items()])
 
 
 @pytest.fixture
