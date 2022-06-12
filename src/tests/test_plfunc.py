@@ -75,28 +75,28 @@ def test_defined(pl, x, x_exp_def):
 def test_intersects_simple():
     a = PLFunction([(0, 0), (1, 1)])
     b = PLFunction([(1, 0), (0, 1)])
-    assert a.overlaps(b)
+    assert a.overlaps_with(b)
 
 
 def test_touches_simple():
     a = PLFunction([(0, 0), (1, 1)])
     b = PLFunction([(0, 0), (1, 10)])
-    assert a.overlaps(b)
+    assert a.overlaps_with(b)
 
 
 def test_intersects_false_min():
     a = PLFunction([(0, 0), (1, 1)])
     b = PLFunction([(-1, 0), (-2, 1)])
-    assert not a.overlaps(b)
+    assert not a.overlaps_with(b)
 
 
 def test_intersects_false_max():
     a = PLFunction([(0, 0), (1, 1)])
     b = PLFunction([(2, 0), (3, 1)])
-    assert not a.overlaps(b)
+    assert not a.overlaps_with(b)
 
 
 def test_intersects_complex():
     a = PLFunction([(0, 0), (1, 5), (2, 5), (10, 100)])
     b = PLFunction([(1.1, 4), (1.8, 6)])
-    assert a.overlaps(b)
+    assert a.overlaps_with(b)

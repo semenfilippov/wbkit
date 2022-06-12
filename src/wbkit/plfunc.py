@@ -89,7 +89,7 @@ class PLFunction:
         after = self.xp[pos]
         return self.fp[pos] if x - before >= after - x else self.fp[pos - 1]
 
-    def overlaps(self, other: PLFunction) -> bool:
+    def overlaps_with(self, other: PLFunction) -> bool:
         """Check if two piecewise linear function graphs overlap.
 
         Args:
