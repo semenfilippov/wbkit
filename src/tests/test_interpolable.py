@@ -1,5 +1,5 @@
 import pytest
-from wbkit.interpolables import Interpolable
+from wbkit.interpolable import Interpolable
 
 
 @pytest.fixture
@@ -25,8 +25,8 @@ def x_exp_def(x):
 
 
 def test_init(ip: Interpolable):
-    assert ip.__xp__ == (-1, 2, 3)
-    assert ip.__fp__ == (10, 20, 30)
+    assert ip.xp == (-1, 2, 3)
+    assert ip.fp == (10, 20, 30)
 
 
 def test_duplicate_values_raise():
@@ -48,12 +48,12 @@ def test_max_x_prop(ip: Interpolable):
     assert ip.max_x == 3
 
 
-def test_min_y_prop(ip: Interpolable):
-    assert ip.min_y == 10
+def test_min_f_prop(ip: Interpolable):
+    assert ip.min_f == 10
 
 
-def test_max_y_prop(ip: Interpolable):
-    assert ip.max_y == 30
+def test_max_f_prop(ip: Interpolable):
+    assert ip.max_f == 30
 
 
 def test_lt_not_in_range(ip):
@@ -68,5 +68,35 @@ def test_interpolate(ip, x, x_exp_interp):
     assert ip[x] == x_exp_interp
 
 
-def test_get_defined(ip, x, x_exp_def):
-    assert ip.get_defined_f(x) == x_exp_def
+def test_defined(ip, x, x_exp_def):
+    assert ip.defined_f(x) == x_exp_def
+
+
+def test_intersects_simple():
+    a = Interpolable([(0, 0), (1, 1)])
+    b = Interpolable([(1, 0), (0, 1)])
+    assert a.intersects(b)
+
+
+def test_touches_simple():
+    a = Interpolable([(0, 0), (1, 1)])
+    b = Interpolable([(0, 0), (1, 10)])
+    assert a.intersects(b)
+
+
+def test_intersects_false_min():
+    a = Interpolable([(0, 0), (1, 1)])
+    b = Interpolable([(-1, 0), (-2, 1)])
+    assert not a.intersects(b)
+
+
+def test_intersects_false_max():
+    a = Interpolable([(0, 0), (1, 1)])
+    b = Interpolable([(2, 0), (3, 1)])
+    assert not a.intersects(b)
+
+
+def test_intersects_complex():
+    a = Interpolable([(0, 0), (1, 5), (2, 5), (10, 100)])
+    b = Interpolable([(1.1, 4), (1.8, 6)])
+    assert a.intersects(b)

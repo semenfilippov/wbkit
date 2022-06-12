@@ -1,6 +1,6 @@
 import pytest
 from wbkit.cglimits import CG, CGLimits
-from wbkit.interpolables import Interpolable
+from wbkit.interpolable import Interpolable
 
 
 @pytest.fixture(params=["short_min", "short_max"])

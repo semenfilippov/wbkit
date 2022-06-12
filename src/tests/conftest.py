@@ -1,7 +1,7 @@
 import pytest
 
 from wbkit.cglimits import CGLimits
-from wbkit.interpolables import Interpolable
+from wbkit.interpolable import Interpolable
 
 
 # STAB
