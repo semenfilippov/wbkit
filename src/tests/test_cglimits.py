@@ -67,6 +67,11 @@ def test_wrong_order(zfw_fwd_line, zfw_aft_line):
         CGLimits(zfw_aft_line, zfw_fwd_line)
 
 
+def test_intersecting_lines():
+    with pytest.raises(ValueError, match="fwd_line and aft_line should not overlap"):
+        CGLimits(PLFunction([(0, 0), (10, 10)]), PLFunction([(0, 10), (10, 0)]))
+
+
 def test_good_idx(zfw_cglimits, good_idx):
     assert good_idx in zfw_cglimits
 
