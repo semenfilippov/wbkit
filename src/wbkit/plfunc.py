@@ -14,8 +14,7 @@ class PLFunction:
         """Create PLFunction object.
 
         Args:
-            points (Sequence[tuple[float | float]]):
-                x : f(x) pairs
+            points (Sequence[tuple[float, float]]): sequence of (x, f(x)) tuples
 
         Raises:
             ValueError: if points contain duplicate values for x
@@ -51,22 +50,22 @@ class PLFunction:
     def __contains__(self, x: float) -> bool:
         return self.min_x <= x <= self.max_x
 
-    def __getitem__(self, x: float) -> float:
+    def __getitem__(self, x: float) -> float | None:
         """Get f(x).
 
         Args:
-            x (Union[float, int]): x value to interpolate
+            x (float): x value to interpolate
 
         Returns:
-            float: interpolated f(x)
+            float | None: interpolated f(x) if x is within defined range, otherwise None
         """
         if x not in self:
-            raise KeyError(f"x should be in range {self.min_x} - {self.max_x}")
+            return None
         if x in self.xp:
             return self.fp[self.xp.index(x)]
         return float(np.interp(x, self.xp, self.fp))
 
-    def defined_f(self, x: float) -> float:
+    def defined_f(self, x: float) -> float | None:
         """Get f(x) for defined x closest to given x value.
 
         Args:
@@ -76,10 +75,11 @@ class PLFunction:
             ValueError: if given x value is out of range
 
         Returns:
-            float: f( closest defined x )
+            float | None: f( closest defined x )
+            if x is within defined range, otherwise None
         """
         if x not in self:
-            raise ValueError(f"x should be in range {self.min_x} - {self.max_x}")
+            return None
         pos = np.searchsorted(self.xp, x)
         if pos == 0:
             return self.fp[0]
@@ -104,8 +104,16 @@ class PLFunction:
         common_xp = set(filter(lambda x: x in self and x in other, all_xp))
         sorted_xp = sorted(common_xp)
         for x1, x2 in pairwise(sorted_xp):
-            diff1 = self[x1] - other[x1]
-            diff2 = self[x2] - other[x2]
+            y1s, y1o = self[x1], other[x1]
+            y2s, y2o = self[x2], other[x2]
+            assert (
+                y1s is not None
+                and y1o is not None
+                and y2s is not None
+                and y2o is not None
+            )
+            diff1 = y1s - y1o
+            diff2 = y2s - y2o
             if diff1 == 0 or diff2 == 0 or diff1 * diff2 < 0:
                 return True
         return False
