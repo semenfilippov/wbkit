@@ -71,9 +71,6 @@ class PLFunction:
         Args:
             x (float): x value to search for
 
-        Raises:
-            ValueError: if given x value is out of range
-
         Returns:
             float | None: f( closest defined x )
             if x is within defined range, otherwise None
