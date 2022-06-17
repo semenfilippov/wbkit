@@ -28,9 +28,7 @@ class PLFunction:
             raise ValueError("duplicate x values are not allowed")
         self.points = tuple(sorted(points, key=lambda x: x[0]))
 
-    def __cut(
-        self, lower: float | None = None, upper: float | None = None
-    ) -> PLFunction:
+    def cut(self, lower: float | None = None, upper: float | None = None) -> PLFunction:
         """Get new PLFunction object with x range cut to given bounds.
 
         Args:
@@ -137,8 +135,11 @@ class PLFunction:
         """
         If `idx` is a single number – get interpolated f(x).
         If `idx` is a slice – get a new PLFunction object
-        with x bounds [lower:upper]. Step is meaningless in this
-        case and will be ignored if present.
+        with x bounds [lower:upper]. This is essentially a shorthand for
+        PLFunction.cut(lower,upper). Using floats in slices is considered to be
+        an error by mypy so if that is the case – just use .cut() instead.
+        Slice step is meaningless in this
+        context and will be ignored if present.
 
         Args:
             idx (float | slice): number or slice object
@@ -150,7 +151,7 @@ class PLFunction:
             float | PLFunction: interpolated f(x) or PLFunction slice
         """
         if isinstance(idx, slice):
-            return self.__cut(idx.start, idx.stop)
+            return self.cut(idx.start, idx.stop)
         if idx not in self:
             raise KeyError(f"x should be in range {self.min_x} - {self.max_x}")
         if idx in self.xp:
