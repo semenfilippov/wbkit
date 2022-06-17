@@ -2,7 +2,7 @@ import pytest
 from wbkit.basic import WBCalculator
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def wbcalc():
     return WBCalculator(10, 2, 10, 10, 10)
 

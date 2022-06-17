@@ -64,11 +64,75 @@ def test_gt_not_in_range(pl):
     assert 4 not in pl
 
 
-def test_interpolate(pl, x, x_exp_interp):
+def test_getitem_out_of_range_raises(pl: PLFunction):
+    with pytest.raises(KeyError, match=f"x should be in range {pl.min_x} - {pl.max_x}"):
+        pl[-2]
+
+
+def test_getitem(pl, x, x_exp_interp):
     assert pl[x] == x_exp_interp
 
 
-def test_defined(pl, x, x_exp_def):
+def test_getslice_wrong_order_raises():
+    lower = 1
+    upper = 9
+    initial = PLFunction([(0, 0), (10, 100)])
+    with pytest.raises(ValueError, match=f"incorrect cutting range {upper} - {lower}"):
+        initial[upper:lower]
+
+
+def test_getslice_equal_bounds_raise():
+    initial = PLFunction([(0, 0), (10, 100)])
+    with pytest.raises(ValueError, match=f"incorrect cutting range {1} - {1}"):
+        initial[1:1]
+
+
+def test_getslice_lower():
+    lower = 1
+    initial = PLFunction([(0, 0), (10, 100)])
+    cut = initial[lower:]
+    assert cut.min_x == lower
+    assert cut.max_x == initial.max_x
+    assert cut[lower] == 10
+    assert cut[initial.max_x] == 100
+
+
+def test_getslice_upper():
+    upper = 9
+    initial = PLFunction([(0, 0), (10, 100)])
+    cut = initial[:upper]
+    assert cut.min_x == initial.min_x
+    assert cut.max_x == upper
+    assert cut[initial.min_x] == 0
+    assert cut[upper] == 90
+
+
+def test_getslice():
+    lower = 1
+    upper = 9
+    initial = PLFunction([(0, 0), (10, 100)])
+    cut = initial[lower:upper]
+    assert cut.min_x == lower
+    assert cut.max_x == upper
+    assert cut[lower] == 10
+    assert cut[upper] == 90
+
+
+def test_wider_getslice():
+    initial = PLFunction([(0, 0), (10, 100)])
+    cut = initial[-10:20]
+    assert initial.xp == cut.xp
+    assert initial.fp == cut.fp
+
+
+def test_defined_out_of_range_raises(pl: PLFunction):
+    with pytest.raises(
+        ValueError, match=f"x should be in range {pl.min_x} - {pl.max_x}"
+    ):
+        pl.defined_f(-2)
+
+
+def test_defined(pl: PLFunction, x, x_exp_def):
     assert pl.defined_f(x) == x_exp_def
 
 
