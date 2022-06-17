@@ -67,53 +67,20 @@ def invalid_aft_line(request, aft_zfw_dict) -> PLFunction:
 
 
 @pytest.fixture
-def good_idx() -> CG:
-    return CG(29.84, 17841)
+def good_idx(zfw_cglimits: CGLimits) -> CG:
+    return CG(29.84, 17841, zfw_cglimits)
 
 
 @pytest.fixture
-def bad_fwd_idx() -> CG:
-    return CG(33, 14500)
+def bad_weight_idx(good_idx: CG):
+    return good_idx._replace(weight=20000)
 
 
 @pytest.fixture
-def bad_aft_idx() -> CG:
-    return CG(59, 15400)
+def bad_fwd_idx(zfw_cglimits: CGLimits) -> CG:
+    return CG(33, 14500, zfw_cglimits)
 
 
-def test_diff_fwd(invalid_fwd_line, zfw_aft_line):
-    with pytest.raises(
-        ValueError,
-        match="fwd_line and aft_line min and max weights should be equal",
-    ):
-        CGLimits(invalid_fwd_line, zfw_aft_line)
-
-
-def test_diff_aft(zfw_fwd_line, invalid_aft_line):
-    with pytest.raises(
-        ValueError,
-        match="fwd_line and aft_line min and max weights should be equal",
-    ):
-        CGLimits(zfw_fwd_line, invalid_aft_line)
-
-
-def test_wrong_order(zfw_fwd_line, zfw_aft_line):
-    with pytest.raises(ValueError, match="make sure order of lines is fwd, aft"):
-        CGLimits(zfw_aft_line, zfw_fwd_line)
-
-
-def test_intersecting_lines():
-    with pytest.raises(ValueError, match="fwd_line and aft_line should not overlap"):
-        CGLimits(PLFunction([(0, 0), (10, 10)]), PLFunction([(0, 10), (10, 0)]))
-
-
-def test_good_idx(zfw_cglimits, good_idx):
-    assert good_idx in zfw_cglimits
-
-
-def test_bad_fwd_idx(zfw_cglimits, bad_fwd_idx):
-    assert bad_fwd_idx not in zfw_cglimits
-
-
-def test_bad_aft_idx(zfw_cglimits, bad_aft_idx):
-    assert bad_aft_idx not in zfw_cglimits
+@pytest.fixture
+def bad_aft_idx(zfw_cglimits: CGLimits) -> CG:
+    return CG(59, 15400, zfw_cglimits)

@@ -7,7 +7,7 @@ def wbcalc():
     return WBCalculator(10, 2, 10, 10, 10)
 
 
-class TestBasic:
+class TestSimple:
     def test_init(self):
         wbcalc = WBCalculator(13.2, 280, 50, 2.526, 12.542)
         assert wbcalc.ref_st == 13.2
@@ -54,6 +54,10 @@ class TestBasic:
         assert wbcalc.mac_to_idx(50, 20) == 60
 
     # some real examples
+
+
+@pytest.mark.parametrize("calc", [WBCalculator(13.2, 280, 50, 2.526, 12.542)])
+class TestReal:
     @pytest.mark.parametrize(
         "idx, weight, mac",
         [
@@ -62,9 +66,8 @@ class TestBasic:
             (23.83, 20354, 11.80),
         ],
     )
-    def test_real_mac_from_idx(self, idx, weight, mac):
-        wbcalc = WBCalculator(13.2, 280, 50, 2.526, 12.542)
-        assert wbcalc.mac_from_idx(idx, weight) == pytest.approx(mac, 1e-3)
+    def test_mac_from_idx(self, calc, idx, weight, mac):
+        assert calc.mac_from_idx(idx, weight) == pytest.approx(mac, 1e-3)
 
     @pytest.mark.parametrize(
         "idx, weight, mac",
@@ -74,6 +77,5 @@ class TestBasic:
             (23.83, 20354, 11.80),
         ],
     )
-    def test_real_mac_to_idx(self, idx, weight, mac):
-        wbcalc = WBCalculator(13.2, 280, 50, 2.526, 12.542)
-        assert wbcalc.mac_to_idx(mac, weight) == pytest.approx(idx, 1e-3)
+    def test_mac_to_idx(self, calc, idx, weight, mac):
+        assert calc.mac_to_idx(mac, weight) == pytest.approx(idx, 1e-3)

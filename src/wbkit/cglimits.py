@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import NamedTuple
 
 from wbkit.plfunc import PLFunction
@@ -6,6 +8,41 @@ from wbkit.plfunc import PLFunction
 class CG(NamedTuple):
     value: float
     weight: float
+    limits: CGLimits | None = None
+
+    @property
+    def __limits(self) -> CGLimits:
+        """Unwrap obj.limits optional
+
+        Raises:
+            TypeError: if obj.limits is None
+
+        Returns:
+            CGLimits: CGLimits object
+        """
+        if self.limits is None:
+            raise TypeError("CG object has no assigned limits")
+        return self.limits
+
+    @property
+    def in_limits(self) -> bool:
+        """Shorthand for obj in obj.limits"""
+        return self in self.__limits
+
+    @property
+    def limit_range(self) -> tuple[float, float] | None:
+        """Shorthand for obj.limits.limit_range(self.weight)"""
+        return self.__limits.limit_range(self.weight)
+
+    @property
+    def exceeds_fwd(self) -> bool:
+        """Shorthand for obj.limits.cg_exceeds_aft(self)"""
+        return self.__limits.cg_exceeds_fwd(self)
+
+    @property
+    def exceeds_aft(self) -> bool:
+        """Shorthand for obj.limits.cg_exceeds_aft(self)"""
+        return self.__limits.cg_exceeds_aft(self)
 
 
 class CGLimits:
@@ -50,9 +87,27 @@ class CGLimits:
         """
         return self.fwd.max_x
 
-    def get_limits(self, for_weight: float) -> tuple[float, float] | None:
+    def cut_weight_range(
+        self, min: float | None = None, max: float | None = None
+    ) -> CGLimits:
+        """Return new CGLimits object with weight range cut to min and max
+        values accordingly. This functionality relies on PLFunction.cut()
+        method.
+
+        Args:
+            min (float | None, optional): minimum weight. Defaults to None.
+            max (float | None, optional): maximum weight. Defaults to None.
+
+        Returns:
+            CGLimits: CGLimits object
+        """
+        new_fwd = self.fwd.cut(min, max)
+        new_aft = self.aft.cut(min, max)
+        return CGLimits(new_fwd, new_aft)
+
+    def limit_range(self, for_weight: float) -> tuple[float, float] | None:
         """Get tuple containing forward and aft CG limits for given weight.
-        If weight is outside of range – None is returned.
+        If weight is outside of defined weight range – None is returned.
 
         Args:
             for_weight (float): weight
@@ -60,14 +115,15 @@ class CGLimits:
         Returns:
             tuple[float, float] | None: fwd, aft limits tuple or None
         """
-        fwd, aft = self.fwd[for_weight], self.aft[for_weight]
-        if fwd is None or aft is None:
+        try:
+            fwd, aft = self.fwd[for_weight], self.aft[for_weight]
+        except KeyError:
             return None
         return fwd, aft
 
     def __contains__(self, cg: CG) -> bool:
-        """Check if CG object is in limits. CG with weight outside of defined range
-        is considered to be out of limits.
+        """Check if CG object is in limits. CG object with weight outside of defined
+        weight range is considered to be out of limits.
 
         Args:
             cg (CG): CG object
@@ -75,8 +131,70 @@ class CGLimits:
         Returns:
             bool: True if CG object is in limits, False otherwise
         """
-        limits = self.get_limits(cg.weight)
+        limits = self.limit_range(cg.weight)
         if limits is None:
             return False
         fwd, aft = limits
         return not (cg.value < fwd or cg.value > aft)
+
+    def exceeds_fwd(self, value: float, weight: float) -> bool:
+        """Check if value-weight pair exceed forward CG limits.
+        True is always returned if weight is out of defined weight range.
+
+        Args:
+            value (float): cg value
+            weight (float): cg weight
+
+        Returns:
+            bool | None: False if value-weight pair does not exceed forward limits,
+            True if does.
+        """
+        limits = self.limit_range(weight)
+        if limits is None:
+            return True
+        fwd, _ = limits
+        return value < fwd
+
+    def exceeds_aft(self, value: float, weight: float) -> bool:
+        """Check if value-weight pair exceed aft CG limits.
+        True is always returned if weight is out of defined weight range.
+
+        Args:
+            value (float): cg value
+            weight (float): cg weight
+
+        Returns:
+            bool | None: False if value-weight pair does not exceed aft limits,
+            True if does.
+        """
+        limits = self.limit_range(weight)
+        if limits is None:
+            return True
+        _, aft = limits
+        return value > aft
+
+    def cg_exceeds_fwd(self, cg: CG) -> bool:
+        """Check if CG object exceeds forward CG limits.
+        True is always returned if weight is out of defined weight range.
+
+        Args:
+            cg (CG): cg object
+
+        Returns:
+            bool | None: False if CG object does not exceed forward limits,
+            True if does. None if weight is out of range.
+        """
+        return self.exceeds_fwd(cg.value, cg.weight)
+
+    def cg_exceeds_aft(self, cg: CG) -> bool:
+        """Check if CG object exceeds aft CG limits.
+        True is always returned if weight is out of defined weight range.
+
+        Args:
+            cg (CG): cg object
+
+        Returns:
+            bool | None: False if CG object does not exceed aft limits,
+            True if does. None if weight is out of range.
+        """
+        return self.exceeds_aft(cg.value, cg.weight)
