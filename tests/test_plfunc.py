@@ -34,6 +34,11 @@ def test_duplicate_values_raise():
         PLFunction([(1, 10), (1, 20)])
 
 
+def test_empty_seq_raises():
+    with pytest.raises(ValueError, match="at least one point is required"):
+        PLFunction([])
+
+
 @pytest.mark.parametrize(["points"], [([("a", 2), (10, 20)],), ([(1, 2), ("a", 20)],)])
 def test_mistype_raises(points):
     with pytest.raises(TypeError):
@@ -79,12 +84,6 @@ def test_getslice_wrong_order_raises():
     initial = PLFunction([(0, 0), (10, 100)])
     with pytest.raises(ValueError, match=f"incorrect cutting range {upper} - {lower}"):
         initial[upper:lower]
-
-
-def test_getslice_equal_bounds_raise():
-    initial = PLFunction([(0, 0), (10, 100)])
-    with pytest.raises(ValueError, match=f"incorrect cutting range {1} - {1}"):
-        initial[1:1]
 
 
 def test_getslice_lower():
