@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="wbkit",
-    version="0.0.3",
+    version="0.0.4",
     author="semenfilippov",
     author_email="semenfilippov@gmail.com",
     description="Aircraft weight and balance framework",
