@@ -63,6 +63,10 @@ class TestInterpolation:
     def test_defined(self, pl: PLFunction, x, x_exp_def):
         assert pl.defined_f(x) == x_exp_def
 
+    def test_defined_zero_element(self, pl: PLFunction):
+        # for coverage purposes
+        assert pl.defined_f(-1) == 10
+
 
 class TestCut:
     def test_wrong_order_raises(self):

@@ -16,6 +16,11 @@ class TestSimple:
         assert wbcalc.macrc == 2.526
         assert wbcalc.lemac_at == 12.542
 
+    @pytest.mark.parametrize("macrc", [(0), (-1)])
+    def test_zero_or_negative_macrc_raises(self, macrc):
+        with pytest.raises(ValueError, match="MAC/RC must be > 0"):
+            WBCalculator(13.2, 280, 50, macrc, 12.542)
+
     @pytest.mark.parametrize("c", [(0), (-1)])
     def test_zero_or_negative_c_raises(self, c):
         with pytest.raises(ValueError, match="C constant must be > 0"):
