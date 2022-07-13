@@ -1,2 +1,2 @@
 build:
-	python3 -m build
+	rm dist/* && python -m build
