@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import NamedTuple, Sequence
 
-from wbkit.plfunc import PLFunction
+from .plfunc import PLFunction
 
 
 class CG(NamedTuple):
