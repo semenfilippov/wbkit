@@ -28,6 +28,12 @@ class TestInit:
         ):
             CGLimits(PLFunction([(0, 0), (10, 10)]), PLFunction([(0, 10), (10, 0)]))
 
+    def test_init_with_tuples(self):
+        fwd_points = [(13500, 20), (19900, 10)]
+        aft_points = [(13500, 50), (19900, 60)]
+        limits = CGLimits(fwd_points, aft_points)
+        assert all([x == y for x, y in zip(fwd_points, limits.fwd.points)])
+
 
 class TestProps:
     def test_min_weight(self, zfw_cglimits: CGLimits):

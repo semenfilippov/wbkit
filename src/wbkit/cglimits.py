@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import NamedTuple, Sequence
 
 from wbkit.plfunc import PLFunction
 
@@ -46,28 +46,34 @@ class CG(NamedTuple):
 
 
 class CGLimits:
-    def __init__(self, fwd_line: PLFunction, aft_line: PLFunction):
+    def __init__(
+        self,
+        fwd: Sequence[tuple[float, float]] | PLFunction,
+        aft: Sequence[tuple[float, float]] | PLFunction,
+    ):
         """Create new CGLimits object.
 
         Args:
-            fwd_line (PLFunction): forward CG limit line
-            aft_line (PLFunction): aft CG limit line
+            fwd (Sequence[tuple[float, float]] | PLFunction): forward CG limit line
+            aft (Sequence[tuple[float, float]] | PLFunction): aft CG limit line
 
         Raises:
             ValueError: if forward and aft lines have different min and max x
             ValueError: if lines overlap
             ValueError: if lines are passed in wrong order
         """
-        if not (fwd_line.min_x == aft_line.min_x and fwd_line.max_x == aft_line.max_x):
+        _fwd = fwd if isinstance(fwd, PLFunction) else PLFunction(fwd)
+        _aft = aft if isinstance(aft, PLFunction) else PLFunction(aft)
+        if not (_fwd.min_x == _aft.min_x and _fwd.max_x == _aft.max_x):
             raise ValueError(
                 "fwd_line and aft_line min and max weights should be equal"
             )
-        if fwd_line.intersects(aft_line):
+        if _fwd.intersects(_aft):
             raise ValueError("fwd_line and aft_line should not overlap")
-        if fwd_line.min_f > aft_line.min_f and fwd_line.max_f > aft_line.max_f:
+        if _fwd.min_f > _aft.min_f and _fwd.max_f > _aft.max_f:
             raise ValueError("make sure order of lines is fwd, aft")
-        self.fwd = fwd_line
-        self.aft = aft_line
+        self.fwd = _fwd
+        self.aft = _aft
 
     @property
     def min_weight(self) -> float:
