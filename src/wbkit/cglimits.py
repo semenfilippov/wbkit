@@ -59,7 +59,7 @@ class CGLimits:
 
         Raises:
             ValueError: if forward and aft lines have different min and max x
-            ValueError: if lines overlap
+            ValueError: if lines intersect
             ValueError: if lines are passed in wrong order
         """
         _fwd = fwd if isinstance(fwd, PLFunction) else PLFunction(fwd)
