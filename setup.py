@@ -25,5 +25,4 @@ setuptools.setup(
     packages=setuptools.find_packages(where="src", exclude=["tests"]),
     package_data={"wbkit": ["py.typed"]},
     python_requires=">=3.10",
-    install_requires=["numpy>=1.22,<2"],
 )

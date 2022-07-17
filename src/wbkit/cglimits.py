@@ -62,7 +62,7 @@ class CGLimits:
             raise ValueError(
                 "fwd_line and aft_line min and max weights should be equal"
             )
-        if fwd_line.overlaps_with(aft_line):
+        if fwd_line.intersects(aft_line):
             raise ValueError("fwd_line and aft_line should not overlap")
         if fwd_line.min_f > aft_line.min_f and fwd_line.max_f > aft_line.max_f:
             raise ValueError("make sure order of lines is fwd, aft")

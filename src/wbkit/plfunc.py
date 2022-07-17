@@ -1,10 +1,45 @@
 from __future__ import annotations
 
+from bisect import bisect_left
 from functools import cached_property
 from itertools import pairwise
 from typing import Sequence, overload
 
-import numpy as np
+
+def interp(x: float, xp: Sequence[float], fp: Sequence[float]) -> float:
+    """Somewhat like `numpy.interp`, but a lot less featured and in pure Python.
+
+    One-dimensional linear interpolation for monotonically increasing
+    sample points. Returns the one-dimensional piecewise linear interpolant
+    to a function with given discrete data points (`xp`, `fp`), evaluated at `x`.
+
+    `xp` has to be sorted in ascending order
+    and, of course, `fp` points must be in such order
+    that the `xp` and `fp` points correspond to each other.
+
+    If x < min(xp) – returns fp[0]. If x > max(xp) – returns fp[-1].
+
+    Args:
+        x (float): x-coordinate at which to evaluate the interpolated value
+        xp (Sequence[float]): x-coordinates of the data points
+        fp (Sequence[float]): y-coordinates of the data points
+
+    Raises:
+        ValueError: if length of xp is not equal to length of fp
+
+    Returns:
+        float: interpolated value
+    """
+    if len(xp) != len(fp):
+        raise ValueError("fp and xp are not of the same length.")
+    pos = bisect_left(xp, x)
+    if pos == 0:
+        return fp[0]
+    if pos == len(xp):
+        return fp[-1]
+    x1, x2 = xp[pos - 1], xp[pos]
+    y1, y2 = fp[pos - 1], fp[pos]
+    return y1 + (x - x1) * ((y2 - y1) / (x2 - x1))
 
 
 class PLFunction:
@@ -23,9 +58,9 @@ class PLFunction:
             ValueError: if points contain duplicate values for x
         """
         if len(points) == 0:
-            raise ValueError("at least one point is required")
+            raise ValueError("at least one point is required.")
         if len({x[0] for x in points}) < len(points):
-            raise ValueError("duplicate x values are not allowed")
+            raise ValueError("duplicate x values are not allowed.")
         self.points = tuple(sorted(points, key=lambda x: x[0]))
 
     def cut(self, lower: float | None = None, upper: float | None = None) -> PLFunction:
@@ -43,8 +78,8 @@ class PLFunction:
         Returns:
             PLFunction: new PLFunction with x range cut to given bounds
         """
-        _lower = max(lower if lower is not None else self.min_x, self.min_x)
-        _upper = min(upper if upper is not None else self.max_x, self.max_x)
+        _lower = max(lower, self.min_x) if lower is not None else self.min_x
+        _upper = min(upper, self.max_x) if upper is not None else self.max_x
 
         if _lower > _upper:
             raise ValueError(f"incorrect cutting range {_lower} - {_upper}")
@@ -154,9 +189,7 @@ class PLFunction:
             return self.cut(idx.start, idx.stop)
         if idx not in self:
             raise KeyError(f"x should be in range {self.min_x} - {self.max_x}")
-        if idx in self.xp:
-            return self.fp[self.xp.index(idx)]
-        return float(np.interp(idx, self.xp, self.fp))
+        return interp(idx, self.xp, self.fp)
 
     def defined_f(self, x: float) -> float:
         """Get f(x) for defined x closest to given x value.
@@ -172,7 +205,7 @@ class PLFunction:
         """
         if x not in self:
             raise ValueError(f"x should be in range {self.min_x} - {self.max_x}")
-        pos = np.searchsorted(self.xp, x)
+        pos = bisect_left(self.xp, x)
         if pos == 0:
             return self.fp[0]
         if pos == len(self.xp):
@@ -181,7 +214,7 @@ class PLFunction:
         after = self.xp[pos]
         return self.fp[pos] if x - before >= after - x else self.fp[pos - 1]
 
-    def overlaps_with(self, other: PLFunction) -> bool:
+    def intersects(self, other: PLFunction) -> bool:
         """Check if two piecewise linear function graphs overlap.
 
         Args:
@@ -193,8 +226,7 @@ class PLFunction:
         if self.min_x > other.max_x or self.max_x < other.min_x:
             return False
         all_xp = self.xp + other.xp
-        common_xp = set(filter(lambda x: x in self and x in other, all_xp))
-        sorted_xp = sorted(common_xp)
+        sorted_xp = sorted({x for x in all_xp if x in self and x in other})
         for x1, x2 in pairwise(sorted_xp):
             y1s, y1o = self[x1], other[x1]
             y2s, y2o = self[x2], other[x2]
